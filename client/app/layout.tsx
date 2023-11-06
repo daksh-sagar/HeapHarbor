@@ -4,18 +4,32 @@ import './globals.css'
 import React from 'react'
 import { ClerkProvider } from '@clerk/nextjs'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'HeapHarbor',
-  description: '',
+  description: 'A platform to ask and answer coding related questions',
+  icons: {
+    icon: '/assets/images/site-logo.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        elements: {
+          formButtonPrimary: 'primary-gradient',
+          footerActionLink: 'primary-text-gradient hover:text-primary-500',
+        },
+      }}
+    >
       <html lang='en'>
-        <body className={inter.className}>{children}</body>
+        <body className={inter.variable}>{children}</body>
       </html>
     </ClerkProvider>
   )
