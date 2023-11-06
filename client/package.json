@@ -9,11 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^4.26.2",
     "next": "14.0.1",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -26,8 +28,7 @@
     "postcss": "^8",
     "prettier": "^3.0.3",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5",
-    "@tailwindcss/typography": "^0.5.10",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5"
   }
 }
