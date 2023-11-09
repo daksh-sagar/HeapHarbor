@@ -4,6 +4,7 @@ import Link from 'next/link'
 import React from 'react'
 import { ThemeMenu } from './ThemeMenu'
 import { MobileNav } from './MobileNav'
+import { GlobalSearch } from '../search/GlobalSearch'
 
 export function Navbar() {
   return (
@@ -14,7 +15,7 @@ export function Navbar() {
           Heap <span className='text-primary-500'>Harbor</span>
         </p>
       </Link>
-      GlobalSearch
+      <GlobalSearch />
       <div className='flex-between gap-5'>
         <ThemeMenu />
         <SignedIn>
