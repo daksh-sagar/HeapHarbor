@@ -43,3 +43,5 @@ export const sidebarLinks: SidebarLink[] = [
     label: 'Profile',
   },
 ]
+
+export * from './filters'
