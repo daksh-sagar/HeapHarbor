@@ -18,7 +18,7 @@ export function ThemeMenu() {
             <Image src='/assets/icons/sun.svg' alt='sun' width={20} height={20} />
           )}
         </MenubarTrigger>
-        <MenubarContent className='dark:border-dark-400 dark:bg-dark-300 absolute right-[-3rem] mt-3 min-w-[120px] rounded border py-2'>
+        <MenubarContent className='dark:border-dark-400 dark:bg-dark-300 bg-light-900 absolute right-[-3rem] mt-3 min-w-[120px] rounded border py-2'>
           {themes.map(item => (
             <MenubarItem
               key={item.value}
