@@ -11,8 +11,9 @@ import { Input } from '@/components/ui/input'
 import { questionFormSchema } from '@/lib/schemas'
 import { Badge } from '../ui/badge'
 import Image from 'next/image'
+import { createQuestion } from '@/lib/actions/question.actions'
 
-export function QuestionForm() {
+export function QuestionForm({ mongoUserId }: { mongoUserId: string }) {
   const form = useForm<z.infer<typeof questionFormSchema>>({
     resolver: zodResolver(questionFormSchema),
     defaultValues: {
@@ -22,8 +23,18 @@ export function QuestionForm() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof questionFormSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof questionFormSchema>) {
+    try {
+      await createQuestion({
+        title: values.title,
+        content: values.explanation,
+        tags: values.tags,
+        author: JSON.parse(mongoUserId),
+        path: '/',
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   function handleTagKeyDown(

@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose'
+import { Schema, model, Document, models, Model } from 'mongoose'
 
 export interface ITag extends Document {
   name: string
@@ -16,4 +16,4 @@ const TagSchema = new Schema({
   createdOn: { type: Date, default: Date.now },
 })
 
-export const Tag = model<ITag>('Tag', TagSchema)
+export const Tag: Model<ITag> = models.Tag || model<ITag>('Tag', TagSchema)

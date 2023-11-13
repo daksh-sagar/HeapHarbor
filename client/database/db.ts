@@ -10,9 +10,9 @@ export async function connectToDb() {
   if (isConnected) return
 
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      dbName: 'HeapHarbor',
-    })
+    console.log('------------connecting--------------')
+    await mongoose.connect(process.env.MONGO_URI)
+    console.log('------------connected--------------')
 
     isConnected = true
   } catch (error) {

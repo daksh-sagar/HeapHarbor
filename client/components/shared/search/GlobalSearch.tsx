@@ -9,7 +9,6 @@ export function GlobalSearch() {
         <Input
           type='text'
           placeholder='Search...'
-          value=''
           className='paragraph-regular no-focus background-light800_darkgradient border-none shadow-none outline-none'
         />
       </div>
