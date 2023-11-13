@@ -16,7 +16,6 @@ export function LocalSearchbar({ route, placeholder, iconPosition, imgSrc, other
       <Input
         type='text'
         placeholder={placeholder}
-        value=''
         className='paragraph-regular no-focus background-light800_darkgradient border-none shadow-none outline-none'
       />
       {iconPosition === 'right' && <Image src={imgSrc} width={24} height={24} alt='search icon' className='cursor-pointer' />}
