@@ -12,8 +12,12 @@ import { questionFormSchema } from '@/lib/schemas'
 import { Badge } from '../ui/badge'
 import Image from 'next/image'
 import { createQuestion } from '@/lib/actions/question.actions'
+import { usePathname, useRouter } from 'next/navigation'
 
 export function QuestionForm({ mongoUserId }: { mongoUserId: string }) {
+  const router = useRouter()
+  const pathname = usePathname()
+
   const form = useForm<z.infer<typeof questionFormSchema>>({
     resolver: zodResolver(questionFormSchema),
     defaultValues: {
@@ -30,8 +34,10 @@ export function QuestionForm({ mongoUserId }: { mongoUserId: string }) {
         content: values.explanation,
         tags: values.tags,
         author: JSON.parse(mongoUserId),
-        path: '/',
+        path: pathname,
       })
+
+      router.push('/')
     } catch (error) {
       console.log(error)
     }

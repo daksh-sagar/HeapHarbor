@@ -4,6 +4,7 @@ import { connectToDb } from '@/database/db'
 import { Question } from '@/database/question.model'
 import { Tag } from '@/database/tag.model'
 import { revalidatePath } from 'next/cache'
+import { ObjectId } from 'mongoose'
 
 export async function createQuestion(params: any): Promise<void> {
   try {
@@ -18,7 +19,7 @@ export async function createQuestion(params: any): Promise<void> {
       author,
     })
 
-    const tagPromises = tags.map(async tag => {
+    const tagPromises: Array<Promise<ObjectId>> = tags.map(async tag => {
       // Create the tag or get it if it already exists
       const existingTag = await Tag.findOneAndUpdate(
         { name: { $regex: new RegExp(`^${tag}$`, 'i') } },
