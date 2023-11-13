@@ -5,52 +5,13 @@ import { NoResult } from '@/components/shared/noResult/NoResult'
 import { LocalSearchbar } from '@/components/shared/search/LocalSearch'
 import { Button } from '@/components/ui/button'
 import { HomePageFilters } from '@/constants'
+import { getQuestions } from '@/lib/actions/question.actions'
 import Link from 'next/link'
 
-const questions = [
-  {
-    _id: '1',
-    title: 'Sample Question 1',
-    tags: [
-      { _id: 1, name: 'Tag A' },
-      { _id: 2, name: 'Tag B' },
-    ],
-    upvotes: 10,
-    views: 100,
-    answers: [
-      { answerId: 'answer1', text: 'This is an answer.' },
-      { answerId: 'answer2', text: 'Another answer here.' },
-    ],
-    createdAt: new Date(),
-    author: {
-      _id: 1,
-      name: 'John Doe',
-      picture: '/assets/icons/clock.svg',
-    },
-  },
-  {
-    _id: '2',
-    title: 'Sample Question 2',
-    tags: [
-      { _id: 3, name: 'Tag C' },
-      { _id: 4, name: 'Tag D' },
-    ],
-    upvotes: 8,
-    views: 80,
-    answers: [
-      { answerId: 'answer3', text: 'Answer to the second question.' },
-      { answerId: 'answer4', text: 'Yet another answer.' },
-    ],
-    createdAt: new Date(),
-    author: {
-      _id: 2,
-      name: 'Jane Doe',
-      picture: '/assets/icons/avatar.svg',
-    },
-  },
-]
+export default async function Home() {
+  const res = await getQuestions({})
 
-export default function Home() {
+  const questions = res?.questions
   return (
     <>
       <div className='flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center'>
@@ -76,7 +37,7 @@ export default function Home() {
       <HomeFilters />
 
       <div className='mt-10 flex w-full flex-col gap-6'>
-        {questions.length > 0 ? (
+        {questions && questions.length > 0 ? (
           questions.map(question => (
             <QuestionCard
               key={question._id}
