@@ -5,6 +5,8 @@ import { NoResult } from '@/components/shared/noResult/NoResult'
 import { LocalSearchbar } from '@/components/shared/search/LocalSearch'
 import { Button } from '@/components/ui/button'
 import { HomePageFilters } from '@/constants'
+import { ITag } from '@/database/tag.model'
+import { IUser } from '@/database/user.model'
 import { getQuestions } from '@/lib/actions/question.actions'
 import Link from 'next/link'
 
@@ -40,11 +42,11 @@ export default async function Home() {
         {questions && questions.length > 0 ? (
           questions.map(question => (
             <QuestionCard
-              key={question._id}
-              _id={question._id}
+              key={question._id.toString()}
+              _id={question._id.toString()}
               title={question.title}
-              tags={question.tags}
-              author={question.author}
+              tags={question.tags as Array<ITag>}
+              author={question.author as IUser}
               upvotes={question.upvotes}
               views={question.views}
               answers={question.answers}

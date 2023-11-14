@@ -2,23 +2,19 @@ import Link from 'next/link'
 import { RenderTag } from '../shared/renderTag/RenderTag'
 import Metric from '../shared/metric/Metric'
 import { formatAndDivide, getRelativeTime } from '@/lib/utils'
+import { IUser } from '@/database/user.model'
+import { ITag } from '@/database/tag.model'
+import { ObjectId } from 'mongoose'
 
 type QuestionCardProps = {
   _id: string
   title: string
-  tags: Array<{
-    _id: number
-    name: string
-  }>
-  upvotes: number
+  tags: Array<ITag>
+  upvotes: Array<ObjectId>
   views: number
   answers: Array<object>
   createdAt: Date
-  author: {
-    _id: number
-    name: string
-    picture: string
-  }
+  author: IUser
 }
 
 export function QuestionCard({ _id, title, tags, author, upvotes, views, answers, createdAt }: QuestionCardProps) {
@@ -53,7 +49,7 @@ export function QuestionCard({ _id, title, tags, author, upvotes, views, answers
           <Metric
             imgUrl='/assets/icons/like.svg'
             alt='Upvotes'
-            value={formatAndDivide(upvotes)}
+            value={formatAndDivide(upvotes.length)}
             title=' Votes'
             textStyles='small-medium text-dark400_light800'
           />
