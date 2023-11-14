@@ -1,13 +1,15 @@
 import { Schema, model, models, Model } from 'mongoose'
+import { IUser } from './user.model'
+import { ITag } from './tag.model'
 
 export interface IQuestion extends Document {
   title: string
   content: string
-  tags: Schema.Types.ObjectId[]
+  tags: Schema.Types.ObjectId[] | ITag[]
   views: number
   upvotes: Schema.Types.ObjectId[]
   downvotes: Schema.Types.ObjectId[]
-  author: Schema.Types.ObjectId
+  author: Schema.Types.ObjectId | IUser
   answers: Schema.Types.ObjectId[]
   createdAt: Date
 }
