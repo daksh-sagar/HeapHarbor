@@ -1,5 +1,5 @@
 import { LeftSidebar } from '@/components/shared/leftsidebar/LeftSidebar'
-import { Navbar } from '@/components/shared/navbar/Navbar'
+import { Navbar } from '@/components/shared/Navbar/Navbar'
 import { RightSidebar } from '@/components/shared/rightsidebar/RightSidebar'
 import React from 'react'
 
