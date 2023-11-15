@@ -2,7 +2,7 @@
 
 import { connectToDb } from '@/database/db'
 import { User } from '@/database/user.model'
-import { CreateUserParams, DeleteUserParams, GetUserByIdParams, UpdateUserParams } from './shared.types'
+import { CreateUserParams, DeleteUserParams, GetAllUsersParams, GetUserByIdParams, UpdateUserParams } from './shared.types'
 import { revalidatePath } from 'next/cache'
 import { Question } from '@/database/question.model'
 
@@ -14,6 +14,18 @@ export async function getUserById(params: GetUserByIdParams) {
 
     const user = await User.findOne({ clerkId: userId })
     return user
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
+export async function getAllUsers(params: GetAllUsersParams) {
+  try {
+    await connectToDb()
+
+    const users = await User.find({}).sort({ createdAt: -1 })
+    return { users }
   } catch (error) {
     console.error(error)
     throw error

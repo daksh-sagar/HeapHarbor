@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 
 type Props = {
-  _id: number
+  _id: string
   name: string
   showCount?: boolean
   count?: number
