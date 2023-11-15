@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Community | HeapHarbor',
 }
 
-const Page = async () => {
+async function Page() {
   const res = await getAllUsers({})
 
   return (

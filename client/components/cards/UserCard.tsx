@@ -28,6 +28,7 @@ export async function UserCard({ user }: UserCardProps) {
           <p className='body-regular text-dark500_light500 mt-2'>@{user.username}</p>
         </div>
 
+        {/* TODO: this part is causing a layout shift */}
         <div className='mt-5'>
           {interactedTags.length > 0 ? (
             <div className='flex items-center gap-2'>
