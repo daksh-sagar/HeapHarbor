@@ -9,11 +9,11 @@ const hotQuestions = [
   { _id: 3, title: 'What the heck are server components?' },
 ]
 const popularTags = [
-  { _id: 1, name: 'react', numberOfQuestions: 10 },
-  { _id: 2, name: 'nextjs', numberOfQuestions: 20 },
-  { _id: 3, name: 'javascript', numberOfQuestions: 30 },
-  { _id: 4, name: 'typescript', numberOfQuestions: 30 },
-  { _id: 5, name: 'c#', numberOfQuestions: 40 },
+  { _id: '1', name: 'react', numberOfQuestions: 10 },
+  { _id: '2', name: 'nextjs', numberOfQuestions: 20 },
+  { _id: '3', name: 'javascript', numberOfQuestions: 30 },
+  { _id: '4', name: 'typescript', numberOfQuestions: 30 },
+  { _id: '5', name: 'c#', numberOfQuestions: 40 },
 ]
 
 export function RightSidebar() {
