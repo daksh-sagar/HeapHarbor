@@ -1,7 +1,8 @@
 import { Schema, model, models, Document, Model } from 'mongoose'
+import { IUser } from './user.model'
 
 export interface IAnswer extends Document {
-  author: Schema.Types.ObjectId
+  author: Schema.Types.ObjectId | IUser
   question: Schema.Types.ObjectId
   content: string
   upvotes: Schema.Types.ObjectId[]
