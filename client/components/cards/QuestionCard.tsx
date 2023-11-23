@@ -4,13 +4,13 @@ import Metric from '../shared/metric/Metric'
 import { formatAndDivide, getRelativeTime } from '@/lib/utils'
 import { IUser } from '@/database/user.model'
 import { ITag } from '@/database/tag.model'
-import { ObjectId } from 'mongoose'
+import { Types } from 'mongoose'
 
 type QuestionCardProps = {
   _id: string
   title: string
   tags: Array<ITag>
-  upvotes: Array<ObjectId>
+  upvotes: Array<Types.ObjectId>
   views: number
   answers: Array<object>
   createdAt: Date
