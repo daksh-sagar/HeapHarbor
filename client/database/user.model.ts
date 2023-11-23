@@ -1,4 +1,4 @@
-import { Schema, model, Document, models, Model } from 'mongoose'
+import { Schema, model, Document, models, Model, Types } from 'mongoose'
 
 export interface IUser extends Document {
   clerkId: string
@@ -11,7 +11,7 @@ export interface IUser extends Document {
   location?: string
   portfolioWebsite?: string
   reputation?: number
-  saved: Schema.Types.ObjectId[]
+  saved: Types.ObjectId[]
   joinedAt: Date
 }
 
