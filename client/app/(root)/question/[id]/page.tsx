@@ -10,6 +10,7 @@ import { getQuestionById } from '@/lib/actions/question.actions'
 import { getUserById } from '@/lib/actions/user.actions'
 import { formatAndDivide, getRelativeTime } from '@/lib/utils'
 import { auth } from '@clerk/nextjs'
+import { Types } from 'mongoose'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -28,6 +29,7 @@ const Page = async ({ params }: { params: { id: string } }) => {
 
   const tagsArray = result.tags as ITag[]
   const author = result.author as IUser
+  const saved: Types.ObjectId[] = (mongoUser?.saved as Types.ObjectId[]) || []
 
   return (
     <>
@@ -46,7 +48,7 @@ const Page = async ({ params }: { params: { id: string } }) => {
               hasUpvoted={result.upvotes.includes(mongoUser?._id)}
               downvotes={result.downvotes.length}
               hasDownvoted={result.downvotes.includes(mongoUser?._id)}
-              hasSaved={mongoUser?.saved.includes(result._id)}
+              hasSaved={saved.includes(result._id)}
             />
           </div>
         </div>

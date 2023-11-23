@@ -1,4 +1,5 @@
 import { Schema, model, Document, models, Model, Types } from 'mongoose'
+import { IQuestion } from './question.model'
 
 export interface IUser extends Document {
   clerkId: string
@@ -11,7 +12,7 @@ export interface IUser extends Document {
   location?: string
   portfolioWebsite?: string
   reputation?: number
-  saved: Types.ObjectId[]
+  saved: Types.ObjectId[] | IQuestion[]
   joinedAt: Date
 }
 
