@@ -3,6 +3,7 @@ import AllAnswers from '@/components/shared/allAnswers/AllAnswers'
 import Metric from '@/components/shared/metric/Metric'
 import { ParseHTML } from '@/components/shared/parseHTML/ParseHTML'
 import { RenderTag } from '@/components/shared/renderTag/RenderTag'
+import { Votes } from '@/components/shared/votes/Votes'
 import { ITag } from '@/database/tag.model'
 import { IUser } from '@/database/user.model'
 import { getQuestionById } from '@/lib/actions/question.actions'
@@ -36,7 +37,18 @@ const Page = async ({ params }: { params: { id: string } }) => {
             <Image src={author.picture} className='rounded-full' width={22} height={22} alt='profile' />
             <p className='paragraph-semibold text-dark300_light700'>{author.name}</p>
           </Link>
-          <div className='flex justify-end'>VOTING</div>
+          <div className='flex justify-end'>
+            <Votes
+              type='question'
+              itemId={result._id.toString()}
+              userId={mongoUser?._id?.toString()}
+              upvotes={result.upvotes.length}
+              hasUpvoted={result.upvotes.includes(mongoUser?._id)}
+              downvotes={result.downvotes.length}
+              hasDownvoted={result.downvotes.includes(mongoUser?._id)}
+              hasSaved={mongoUser?.saved.includes(result._id)}
+            />
+          </div>
         </div>
         <h2 className='h2-semibold text-dark200_light900 mt-3.5 w-full text-left'>{result.title}</h2>
       </div>
