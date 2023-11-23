@@ -2,6 +2,7 @@
 
 import { downvoteAnswer, upvoteAnswer } from '@/lib/actions/answer.actions'
 import { downvoteQuestion, upvoteQuestion } from '@/lib/actions/question.actions'
+import { toggleSaveQuestion } from '@/lib/actions/user.actions'
 import { formatAndDivide } from '@/lib/utils'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -63,7 +64,13 @@ export function Votes({ type, itemId, userId, upvotes, downvotes, hasDownvoted, 
     }
   }
 
-  async function handleSave() {}
+  async function handleSaveQuestion() {
+    await toggleSaveQuestion({
+      userId,
+      questionId: itemId,
+      path: pathname,
+    })
+  }
 
   return (
     <div className='flex gap-5'>
@@ -106,7 +113,7 @@ export function Votes({ type, itemId, userId, upvotes, downvotes, hasDownvoted, 
           height={18}
           alt='star'
           className='cursor-pointer'
-          onClick={handleSave}
+          onClick={handleSaveQuestion}
         />
       )}
     </div>
