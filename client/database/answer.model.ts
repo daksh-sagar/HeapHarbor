@@ -1,12 +1,12 @@
-import { Schema, model, models, Document, Model } from 'mongoose'
+import { Schema, model, models, Document, Model, Types } from 'mongoose'
 import { IUser } from './user.model'
 
 export interface IAnswer extends Document {
-  author: Schema.Types.ObjectId | IUser
-  question: Schema.Types.ObjectId
+  author: Types.ObjectId | IUser
+  question: Types.ObjectId
   content: string
-  upvotes: Schema.Types.ObjectId[]
-  downvotes: Schema.Types.ObjectId[]
+  upvotes: Types.ObjectId[]
+  downvotes: Types.ObjectId[]
   createdAt: Date
 }
 

@@ -1,10 +1,10 @@
-import { Schema, model, Document, models, Model } from 'mongoose'
+import { Schema, model, Document, models, Model, Types } from 'mongoose'
 
 export interface ITag extends Document {
   name: string
   description: string
-  questions: Schema.Types.ObjectId[]
-  followers: Schema.Types.ObjectId[]
+  questions: Types.ObjectId[]
+  followers: Types.ObjectId[]
   createdOn: Date
 }
 

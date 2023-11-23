@@ -1,16 +1,16 @@
-import { Schema, model, models, Model } from 'mongoose'
+import { Schema, model, models, Model, Types } from 'mongoose'
 import { IUser } from './user.model'
 import { ITag } from './tag.model'
 
 export interface IQuestion extends Document {
   title: string
   content: string
-  tags: Schema.Types.ObjectId[] | ITag[]
+  tags: Types.ObjectId[] | ITag[]
   views: number
-  upvotes: Schema.Types.ObjectId[]
-  downvotes: Schema.Types.ObjectId[]
-  author: Schema.Types.ObjectId | IUser
-  answers: Schema.Types.ObjectId[]
+  upvotes: Types.ObjectId[]
+  downvotes: Types.ObjectId[]
+  author: Types.ObjectId | IUser
+  answers: Types.ObjectId[]
   createdAt: Date
 }
 

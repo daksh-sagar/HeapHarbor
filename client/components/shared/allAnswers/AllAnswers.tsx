@@ -6,10 +6,12 @@ import { AnswerFilters } from '@/constants'
 import { getRelativeTime } from '@/lib/utils'
 import { ParseHTML } from '../parseHTML/ParseHTML'
 import { IUser } from '@/database/user.model'
+import { Votes } from '../votes/Votes'
+import { Types } from 'mongoose'
 
 type Props = {
   questionId: string
-  userId: string
+  userId: Types.ObjectId
   totalAnswers: number
   page?: number
   filter?: string
@@ -34,7 +36,7 @@ const AllAnswers = async ({ questionId, userId, totalAnswers, page, filter }: Pr
         {result.answers.map(answer => {
           const author = answer.author as IUser
           return (
-            <article key={answer._id} className='light-border border-b py-10'>
+            <article key={answer._id} className='light-border-2 border-b py-10'>
               <div className='mb-8 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2'>
                 <Link href={`/profile/${author.clerkId}`} className='flex flex-1 items-start gap-1 sm:items-center'>
                   <Image src={author.picture} width={18} height={18} alt='profile' className='rounded-full object-cover max-sm:mt-0.5' />
@@ -46,17 +48,17 @@ const AllAnswers = async ({ questionId, userId, totalAnswers, page, filter }: Pr
                     </p>
                   </div>
                 </Link>
-                {/* <div className="flex justify-end">
+                <div className='flex justify-end'>
                   <Votes
-                    type="Answer"
-                    itemId={JSON.stringify(answer._id)}
-                    userId={JSON.stringify(userId)}
+                    type='answer'
+                    itemId={answer._id.toString()}
+                    userId={userId.toString()}
                     upvotes={answer.upvotes.length}
-                    hasupVoted={answer.upvotes.includes(userId)}
+                    hasUpvoted={answer.upvotes.includes(userId)}
                     downvotes={answer.downvotes.length}
-                    hasdownVoted={answer.downvotes.includes(userId)}
+                    hasDownvoted={answer.downvotes.includes(userId)}
                   />
-                </div> */}
+                </div>
               </div>
               <ParseHTML data={answer.content} />
             </article>
