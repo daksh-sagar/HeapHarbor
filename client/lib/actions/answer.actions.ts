@@ -1,10 +1,11 @@
 'use server'
 
 import { connectToDb } from '@/database/db'
-import { CreateAnswerParams, GetAnswersParams } from './shared.types'
+import { AnswerVoteParams, CreateAnswerParams, GetAnswersParams } from './shared.types'
 import { Answer } from '@/database/answer.model'
 import { revalidatePath } from 'next/cache'
 import { Question } from '@/database/question.model'
+import { User } from '@/database/user.model'
 
 export async function createAnswer(params: CreateAnswerParams): Promise<void> {
   try {
@@ -69,6 +70,78 @@ export async function getAnswers(params: GetAnswersParams) {
     const isNextAnswer = totalAnswer > skipAmount + answers.length
 
     return { answers, isNextAnswer }
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+export async function upvoteAnswer(params: AnswerVoteParams) {
+  try {
+    await connectToDb()
+
+    const { answerId, userId, hasUpvoted, hasDownvoted, path } = params
+
+    let updateQuery = {}
+
+    if (hasUpvoted) {
+      updateQuery = { $pull: { upvotes: userId } }
+    } else if (hasDownvoted) {
+      updateQuery = {
+        $pull: { downvotes: userId },
+        $push: { upvotes: userId },
+      }
+    } else {
+      updateQuery = { $addToSet: { upvotes: userId } }
+    }
+
+    const answer = await Answer.findByIdAndUpdate(answerId, updateQuery, { new: true })
+
+    if (!answer) {
+      throw new Error('Answer not found')
+    }
+
+    await User.findByIdAndUpdate(answer.author, {
+      $inc: { reputation: hasUpvoted ? -10 : 10 },
+    })
+
+    revalidatePath(path)
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+export async function downvoteAnswer(params: AnswerVoteParams) {
+  try {
+    await connectToDb()
+
+    const { answerId, userId, hasUpvoted, hasDownvoted, path } = params
+
+    let updateQuery = {}
+
+    if (hasDownvoted) {
+      updateQuery = { $pull: { downvotes: userId } }
+    } else if (hasUpvoted) {
+      updateQuery = {
+        $pull: { upvotes: userId },
+        $push: { downvotes: userId },
+      }
+    } else {
+      updateQuery = { $addToSet: { downvotes: userId } }
+    }
+
+    const answer = await Answer.findByIdAndUpdate(answerId, updateQuery, { new: true })
+
+    if (!answer) {
+      throw new Error('Answer not found')
+    }
+
+    await User.findByIdAndUpdate(answer.author, {
+      $inc: { reputation: hasDownvoted ? -10 : 10 },
+    })
+
+    revalidatePath(path)
   } catch (error) {
     console.log(error)
     throw error

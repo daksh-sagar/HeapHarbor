@@ -63,7 +63,7 @@ export function Votes({ type, itemId, userId, upvotes, downvotes, hasDownvoted, 
     }
   }
 
-  function handleSave() {}
+  async function handleSave() {}
 
   return (
     <div className='flex gap-5'>
