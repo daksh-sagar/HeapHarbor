@@ -12,8 +12,8 @@ import {
   UpdateUserParams,
 } from './shared.types'
 import { revalidatePath } from 'next/cache'
-import { Question } from '@/database/question.model'
-import { Types } from 'mongoose'
+import { IQuestion, Question } from '@/database/question.model'
+import { Document, FilterQuery, Types } from 'mongoose'
 import { Tag } from '@/database/tag.model'
 
 export async function getUserById(params: GetUserByIdParams) {
@@ -104,7 +104,8 @@ export async function toggleSaveQuestion(params: ToggleSaveQuestionParams) {
       throw new Error('User not found')
     }
 
-    const isQuestionSaved = user.saved.includes(new Types.ObjectId(questionId))
+    const saved = user.saved as Types.ObjectId[]
+    const isQuestionSaved = saved.includes(new Types.ObjectId(questionId))
 
     if (isQuestionSaved) {
       // remove question from saved
@@ -129,7 +130,7 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 
     const skipAmount = (page - 1) * pageSize
 
-    const query = searchQuery ? { title: { $regex: new RegExp(searchQuery, 'i') } } : {}
+    const query: FilterQuery<typeof Question> = searchQuery ? { title: { $regex: new RegExp(searchQuery, 'i') } } : {}
 
     let sortOptions = {}
 
@@ -174,7 +175,16 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 
     const isNext = user.saved.length > pageSize
 
-    const savedQuestions = user.saved
+    const savedQuestions = user.saved as Omit<
+      Omit<
+        Document<unknown, {}, IQuestion> &
+          IQuestion & {
+            _id: Types.ObjectId
+          },
+        never
+      >,
+      never
+    >[]
 
     return { questions: savedQuestions, isNext }
   } catch (error) {
