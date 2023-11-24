@@ -1,17 +1,19 @@
 'use client'
 
 import { downvoteAnswer, upvoteAnswer } from '@/lib/actions/answer.actions'
+import { viewQuestion } from '@/lib/actions/interaction.actions'
 import { downvoteQuestion, upvoteQuestion } from '@/lib/actions/question.actions'
 import { toggleSaveQuestion } from '@/lib/actions/user.actions'
 import { formatAndDivide } from '@/lib/utils'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { useEffect } from 'react'
 
 type voteType = 'upvote' | 'downvote'
 type VotesProps = {
   type: 'question' | 'answer'
   itemId: string
-  userId: string
+  userId: string // TODO: userId can be undefined if a user is not logged in, need to take care of this
   upvotes: number
   hasUpvoted: boolean
   downvotes: number
@@ -71,6 +73,15 @@ export function Votes({ type, itemId, userId, upvotes, downvotes, hasDownvoted, 
       path: pathname,
     })
   }
+
+  useEffect(() => {
+    viewQuestion({
+      questionId: itemId,
+      userId,
+    })
+
+    console.log('i ran')
+  }, [userId, itemId])
 
   return (
     <div className='flex gap-5'>
