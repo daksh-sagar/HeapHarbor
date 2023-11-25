@@ -1,9 +1,10 @@
 import { Schema, model, Document, models, Model, Types } from 'mongoose'
+import { IQuestion } from './question.model'
 
 export interface ITag extends Document {
   name: string
   description: string
-  questions: Types.ObjectId[]
+  questions: Types.ObjectId[] | IQuestion[]
   followers: Types.ObjectId[]
   createdOn: Date
 }
