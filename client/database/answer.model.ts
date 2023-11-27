@@ -1,9 +1,10 @@
 import { Schema, model, models, Document, Model, Types } from 'mongoose'
 import { IUser } from './user.model'
+import { IQuestion } from './question.model'
 
 export interface IAnswer extends Document {
   author: Types.ObjectId | IUser
-  question: Types.ObjectId
+  question: Types.ObjectId | IQuestion
   content: string
   upvotes: Types.ObjectId[]
   downvotes: Types.ObjectId[]

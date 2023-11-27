@@ -11,7 +11,7 @@ export interface IUser extends Document {
   picture: string
   location?: string
   portfolioWebsite?: string
-  reputation?: number
+  reputation: number
   saved: Types.ObjectId[] | IQuestion[]
   joinedAt: Date
 }

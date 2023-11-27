@@ -15,6 +15,7 @@ type QuestionCardProps = {
   answers: Array<object>
   createdAt: Date
   author: IUser
+  clerkId?: string | null
 }
 
 export function QuestionCard({ _id, title, tags, author, upvotes, views, answers, createdAt }: QuestionCardProps) {
