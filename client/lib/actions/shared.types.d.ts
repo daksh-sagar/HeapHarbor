@@ -1,5 +1,4 @@
 import { IUser } from '@/database/user.model'
-import { ObjectId } from 'mongoose'
 
 export interface CreateAnswerParams {
   content: string
@@ -61,7 +60,7 @@ export interface CreateQuestionParams {
   title: string
   content: string
   tags: string[]
-  author: ObjectId | IUser
+  author: string
   path: string
 }
 
@@ -87,6 +86,7 @@ export interface EditQuestionParams {
   title: string
   content: string
   path: string
+  tags: string[]
 }
 
 export interface GetAllTagsParams {

@@ -2,6 +2,8 @@ import { formatAndDivide, getRelativeTime } from '@/lib/utils'
 import Link from 'next/link'
 import Metric from '../shared/metric/Metric'
 import { Types } from 'mongoose'
+import { SignedIn } from '@clerk/nextjs'
+import { EditDeleteAction } from '../shared/editDeleteAction/EditDeleteAction'
 
 type AnswerCardProps = {
   clerkId?: string | null
@@ -20,7 +22,9 @@ type AnswerCardProps = {
   createdAt: Date
 }
 
-export const AnswerCard = ({ _id, question, author, upvotes, createdAt }: AnswerCardProps) => {
+export const AnswerCard = ({ _id, clerkId, question, author, upvotes, createdAt }: AnswerCardProps) => {
+  const showActionButtons = clerkId && clerkId === author.clerkId
+
   return (
     <Link href={`/question/${question._id}/#${_id}`} className='card-wrapper rounded-[10px] px-11 py-9'>
       <div className='flex flex-col-reverse items-start justify-between gap-5 sm:flex-row'>
@@ -28,6 +32,7 @@ export const AnswerCard = ({ _id, question, author, upvotes, createdAt }: Answer
           <span className='subtle-regular text-dark400_light700 line-clamp-1 flex sm:hidden'>{getRelativeTime(createdAt)}</span>
           <h3 className='sm:h3-semibold base-semibold text-dark200_light900 line-clamp-1 flex-1'>{question.title}</h3>
         </div>
+        <SignedIn>{showActionButtons && <EditDeleteAction type='answer' itemId={_id} />}</SignedIn>
       </div>
 
       <div className='flex-between mt-6 w-full flex-wrap gap-3'>
