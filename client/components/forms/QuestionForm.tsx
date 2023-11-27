@@ -11,33 +11,55 @@ import { Input } from '@/components/ui/input'
 import { questionFormSchema } from '@/lib/schemas'
 import { Badge } from '../ui/badge'
 import Image from 'next/image'
-import { createQuestion } from '@/lib/actions/question.actions'
+import { createQuestion, editQuestion } from '@/lib/actions/question.actions'
 import { usePathname, useRouter } from 'next/navigation'
 
-export function QuestionForm({ mongoUserId }: { mongoUserId: string }) {
+type QuestionFormProps = {
+  mongoUserId: string
+  type?: 'Edit'
+  questionDetails?: {
+    _id: string
+    title: string
+    explanation: string
+    tags: string[]
+  }
+}
+
+export function QuestionForm({ mongoUserId, type, questionDetails }: QuestionFormProps) {
   const router = useRouter()
   const pathname = usePathname()
 
   const form = useForm<z.infer<typeof questionFormSchema>>({
     resolver: zodResolver(questionFormSchema),
     defaultValues: {
-      title: 'where is the default ??',
-      explanation: '',
-      tags: ['react', 'sql'],
+      title: questionDetails?.title ?? '',
+      explanation: questionDetails?.explanation ?? '',
+      tags: questionDetails?.tags ?? [],
     },
   })
 
   async function onSubmit(values: z.infer<typeof questionFormSchema>) {
     try {
-      await createQuestion({
-        title: values.title,
-        content: values.explanation,
-        tags: values.tags,
-        author: JSON.parse(mongoUserId),
-        path: pathname,
-      })
+      if (type === 'Edit') {
+        await editQuestion({
+          questionId: questionDetails!._id,
+          title: values.title,
+          content: values.explanation,
+          path: pathname,
+          tags: values.tags,
+        })
+        router.push(`/question/${questionDetails!._id}`)
+      } else {
+        await createQuestion({
+          title: values.title,
+          content: values.explanation,
+          tags: values.tags,
+          author: mongoUserId,
+          path: pathname,
+        })
 
-      router.push('/')
+        router.push('/')
+      }
     } catch (error) {
       console.log(error)
     }
@@ -130,7 +152,7 @@ export function QuestionForm({ mongoUserId }: { mongoUserId: string }) {
                   {...field}
                 />
               </FormControl>
-              <FormDescription className='body-regular mt-2.5 text-light-500'>
+              <FormDescription className='body-regular text-light-500 mt-2.5'>
                 Introduce the problem and expand on what you put in the title. Minimum 20 characters.
               </FormDescription>
               <FormMessage className='text-red-500' />
@@ -176,15 +198,15 @@ export function QuestionForm({ mongoUserId }: { mongoUserId: string }) {
                   )}
                 </>
               </FormControl>
-              <FormDescription className='body-regular mt-2.5 text-light-500'>
+              <FormDescription className='body-regular text-light-500 mt-2.5'>
                 Add up to 5 tags to describe what your question is about. You need to press `Space` to add a tag.
               </FormDescription>
               <FormMessage className='text-red-500' />
             </FormItem>
           )}
         />
-        <Button type='submit' className='primary-gradient w-fit !text-light-900' disabled={form.formState.isSubmitting}>
-          Ask Question
+        <Button type='submit' className='primary-gradient !text-light-900 w-fit' disabled={form.formState.isSubmitting}>
+          {type === 'Edit' ? 'Update Question' : 'Ask Question'}
         </Button>
       </form>
     </Form>

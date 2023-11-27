@@ -4,9 +4,18 @@ import { connectToDb } from '@/database/db'
 import { Question } from '@/database/question.model'
 import { Tag } from '@/database/tag.model'
 import { revalidatePath } from 'next/cache'
-import { ObjectId } from 'mongoose'
-import { CreateQuestionParams, GetQuestionByIdParams, GetQuestionsParams, QuestionVoteParams } from './shared.types'
+import { ObjectId, Types } from 'mongoose'
+import {
+  CreateQuestionParams,
+  DeleteQuestionParams,
+  EditQuestionParams,
+  GetQuestionByIdParams,
+  GetQuestionsParams,
+  QuestionVoteParams,
+} from './shared.types'
 import { User } from '@/database/user.model'
+import { Answer } from '@/database/answer.model'
+import { Interaction } from '@/database/interaction.model'
 
 export async function getQuestions(params: GetQuestionsParams) {
   try {
@@ -59,7 +68,7 @@ export async function createQuestion(params: CreateQuestionParams): Promise<void
       //   question: question._id,
       //   tags: tagDocuments,
       // }),
-      // User.findByIdAndUpdate(author, { $inc: { reputation: 5 } }),
+      User.findByIdAndUpdate(author, { $inc: { reputation: 5 } }),
     ]
 
     await Promise.all(promises)
@@ -157,5 +166,62 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
   } catch (error) {
     console.log(error)
     throw error
+  }
+}
+
+export async function deleteQuestion(params: DeleteQuestionParams) {
+  try {
+    await connectToDb()
+
+    const { questionId, path } = params
+
+    // TODO: deleting a question should also adjust the reputation of the users, since the question and corresponding answers have been removed as well
+    // probably would be better to not let the user delete a question once it has been posted, just allow the edit
+
+    await Promise.all([
+      Question.deleteOne({ _id: questionId }),
+      Answer.deleteMany({ question: questionId }),
+      Interaction.deleteMany({ question: questionId }),
+      Tag.updateMany({ questions: questionId }, { $pull: { questions: questionId } }),
+    ])
+
+    revalidatePath(path)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export async function editQuestion(params: EditQuestionParams) {
+  try {
+    await connectToDb()
+
+    const { questionId, title, content, path, tags: updatedTags } = params
+    const question = await Question.findById(questionId)
+
+    if (!question) return
+
+    const existingTagIds = question.tags as Types.ObjectId[]
+
+    const upsertTags = updatedTags.map(async tagName => {
+      const tag = await Tag.findOneAndUpdate({ name: tagName }, { $addToSet: { questions: question._id } }, { upsert: true, new: true })
+      return tag._id as Types.ObjectId
+    })
+    const updatedTagIds = await Promise.all(upsertTags)
+
+    const tagsToRemove = existingTagIds.filter(tagId => !updatedTagIds.includes(tagId))
+
+    const removeTags = tagsToRemove.map(async tagName => {
+      return await Tag.findOneAndUpdate({ name: tagName }, { $pull: { questions: question._id } })
+    })
+
+    question.title = title
+    question.content = content
+    question.tags = updatedTagIds
+
+    await Promise.all([question.save(), ...removeTags])
+
+    revalidatePath(path)
+  } catch (error) {
+    console.log(error)
   }
 }

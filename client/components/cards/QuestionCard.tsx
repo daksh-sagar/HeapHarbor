@@ -5,6 +5,8 @@ import { formatAndDivide, getRelativeTime } from '@/lib/utils'
 import { IUser } from '@/database/user.model'
 import { ITag } from '@/database/tag.model'
 import { Types } from 'mongoose'
+import { SignedIn } from '@clerk/nextjs'
+import { EditDeleteAction } from '../shared/editDeleteAction/EditDeleteAction'
 
 type QuestionCardProps = {
   _id: string
@@ -18,7 +20,8 @@ type QuestionCardProps = {
   clerkId?: string | null
 }
 
-export function QuestionCard({ _id, title, tags, author, upvotes, views, answers, createdAt }: QuestionCardProps) {
+export function QuestionCard({ _id, clerkId, title, tags, author, upvotes, views, answers, createdAt }: QuestionCardProps) {
+  const showActionButtons = clerkId && clerkId === author.clerkId
   return (
     <div className='card-wrapper rounded-[10px] p-9 sm:px-11'>
       <div className='flex flex-col-reverse items-start justify-between gap-5 sm:flex-row'>
@@ -28,6 +31,7 @@ export function QuestionCard({ _id, title, tags, author, upvotes, views, answers
             <h3 className='sm:h3-semibold base-semibold text-dark200_light900 line-clamp-1 flex-1'>{title}</h3>
           </Link>
         </div>
+        <SignedIn>{showActionButtons && <EditDeleteAction type='question' itemId={_id} />}</SignedIn>
       </div>
 
       <div className='mt-3.5 flex flex-wrap gap-2'>
