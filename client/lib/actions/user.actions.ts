@@ -8,6 +8,7 @@ import {
   GetAllUsersParams,
   GetSavedQuestionsParams,
   GetUserByIdParams,
+  GetUserStatsParams,
   ToggleSaveQuestionParams,
   UpdateUserParams,
 } from './shared.types'
@@ -15,6 +16,7 @@ import { revalidatePath } from 'next/cache'
 import { IQuestion, Question } from '@/database/question.model'
 import { Document, FilterQuery, Types } from 'mongoose'
 import { Tag } from '@/database/tag.model'
+import { Answer } from '@/database/answer.model'
 
 export async function getUserById(params: GetUserByIdParams) {
   try {
@@ -187,6 +189,127 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     >[]
 
     return { questions: savedQuestions, isNext }
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+export async function getUserInfo(params: GetUserByIdParams) {
+  try {
+    await connectToDb()
+
+    const { userId } = params
+
+    const user = await User.findOne({ clerkId: userId })
+
+    if (!user) {
+      throw new Error('User not found')
+    }
+
+    const totalQuestions = await Question.countDocuments({ author: user._id })
+    const totalAnswers = await Answer.countDocuments({ author: user._id })
+
+    // const [questionUpvotes] = await Question.aggregate([
+    //   { $match: { author: user._id } },
+    //   {
+    //     $project: {
+    //       _id: 0,
+    //       upvotes: { $size: '$upvotes' },
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: null,
+    //       totalUpvotes: { $sum: '$upvotes' },
+    //     },
+    //   },
+    // ])
+
+    // const [answerUpvotes] = await Answer.aggregate([
+    //   { $match: { author: user._id } },
+    //   {
+    //     $project: {
+    //       _id: 0,
+    //       upvotes: { $size: '$upvotes' },
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: null,
+    //       totalUpvotes: { $sum: '$upvotes' },
+    //     },
+    //   },
+    // ])
+
+    // const [questionViews] = await Answer.aggregate([
+    //   { $match: { author: user._id } },
+    //   {
+    //     $group: {
+    //       _id: null,
+    //       totalViews: { $sum: '$views' },
+    //     },
+    //   },
+    // ])
+
+    return {
+      user,
+      totalQuestions,
+      totalAnswers,
+      reputation: user.reputation,
+    }
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+export async function getUserQuestions(params: GetUserStatsParams) {
+  try {
+    await connectToDb()
+
+    const { userId, page = 1, pageSize = 10 } = params
+
+    const skipAmount = (page - 1) * pageSize
+
+    const totalQuestions = await Question.countDocuments({ author: userId })
+
+    const userQuestions = await Question.find({ author: userId })
+      .sort({ createdAt: -1, views: -1, upvotes: -1 })
+      .skip(skipAmount)
+      .limit(pageSize)
+      .populate('tags', '_id name')
+      .populate('author', '_id clerkId name picture')
+
+    const isNextQuestions = totalQuestions > skipAmount + userQuestions.length
+
+    return { totalQuestions, questions: userQuestions, isNextQuestions }
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+export async function getUserAnswers(params: GetUserStatsParams) {
+  try {
+    await connectToDb()
+
+    const { userId, page = 1, pageSize = 10 } = params
+
+    const skipAmount = (page - 1) * pageSize
+
+    const totalAnswers = await Answer.countDocuments({ author: userId })
+
+    const userAnswers = await Answer.find({ author: userId })
+      .sort({ upvotes: -1 })
+      .skip(skipAmount)
+      .limit(pageSize)
+      .populate('question', '_id title')
+      .populate('author', '_id clerkId name picture')
+
+    const isNextAnswer = totalAnswers > skipAmount + userAnswers.length
+
+    return { totalAnswers, answers: userAnswers, isNextAnswer }
   } catch (error) {
     console.log(error)
     throw error
