@@ -8,7 +8,7 @@ import { IUser } from '@/database/user.model'
 import { getSavedQuestions } from '@/lib/actions/user.actions'
 import { auth } from '@clerk/nextjs'
 
-export default async function Collection() {
+export default async function Collection({ searchParams }: { searchParams: { q: string } }) {
   const { userId } = auth()
 
   // TODO: this should be an authenticated route
@@ -16,6 +16,7 @@ export default async function Collection() {
 
   const result = await getSavedQuestions({
     clerkId: userId,
+    searchQuery: searchParams.q,
   })
 
   return (
