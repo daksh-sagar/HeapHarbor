@@ -36,8 +36,21 @@ export async function getAllUsers(params: GetAllUsersParams) {
   try {
     await connectToDb()
 
-    const users = await User.find({}).sort({ createdAt: -1 })
-    return { users }
+    const { searchQuery, page = 1, pageSize = 10 } = params
+    const skipAmount = (page - 1) * pageSize
+
+    const query: FilterQuery<typeof User> = {}
+
+    if (searchQuery) {
+      query.$or = [{ name: { $regex: new RegExp(searchQuery, 'i') } }, { username: { $regex: new RegExp(searchQuery, 'i') } }]
+    }
+
+    const users = await User.find(query).skip(skipAmount).limit(pageSize)
+
+    const totalUsers = await User.estimatedDocumentCount(query)
+    const isNext = totalUsers > skipAmount + users.length
+
+    return { users, isNext }
   } catch (error) {
     console.error(error)
     throw error

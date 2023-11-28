@@ -10,8 +10,10 @@ export const metadata: Metadata = {
   title: 'Community | HeapHarbor',
 }
 
-async function Page() {
-  const res = await getAllUsers({})
+async function Page({ searchParams }: { searchParams: { q: string | undefined } }) {
+  const res = await getAllUsers({
+    searchQuery: searchParams.q,
+  })
 
   return (
     <>
@@ -35,7 +37,7 @@ async function Page() {
         ) : (
           <div className='paragraph-regular text-dark200_light800 mx-auto max-w-4xl text-center'>
             <p>No users yet</p>
-            <Link href='/signup' className='mt-2 font-bold text-accent-blue'>
+            <Link href='/signup' className='text-accent-blue mt-2 font-bold'>
               Join to be the first!
             </Link>
           </div>
