@@ -10,8 +10,11 @@ import { IUser } from '@/database/user.model'
 import { getQuestions } from '@/lib/actions/question.actions'
 import Link from 'next/link'
 
-export default async function Home({ searchParams }: { searchParams: { q: string } }) {
-  const res = await getQuestions({ searchQuery: searchParams.q })
+export default async function Home({ searchParams }: { searchParams: { q: string; filter: string } }) {
+  const res = await getQuestions({ searchQuery: searchParams.q, filter: searchParams.filter })
+  searchParams.toString = () => {
+    return searchParams.q ? (searchParams.filter ? `q=${searchParams.q}&filter=${searchParams.filter}` : `q=${searchParams.q}`) : ''
+  }
 
   const questions = res?.questions
   return (
@@ -36,7 +39,7 @@ export default async function Home({ searchParams }: { searchParams: { q: string
         <Filter filters={HomePageFilters} otherClasses='min-h-[56px] sm:min-w-[170px]' containerClasses='hidden max-md:flex' />
       </div>
 
-      <HomeFilters />
+      <HomeFilters searchParams={searchParams} />
 
       <div className='mt-10 flex w-full flex-col gap-6'>
         {questions && questions.length > 0 ? (

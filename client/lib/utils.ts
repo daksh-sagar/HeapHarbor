@@ -43,6 +43,13 @@ export function createUrlQuery({ params, key, value }: UrlQueryParams) {
   )
 }
 
+export function updateQuery({ params, key, value }: UrlQueryParams) {
+  const currentUrl = qs.parse(params)
+  currentUrl[key] = value
+
+  return qs.stringify(currentUrl, { skipNull: true })
+}
+
 export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
   let timeout: number
 
