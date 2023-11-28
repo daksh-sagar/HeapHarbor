@@ -4,7 +4,7 @@ import { connectToDb } from '@/database/db'
 import { Question } from '@/database/question.model'
 import { Tag } from '@/database/tag.model'
 import { revalidatePath } from 'next/cache'
-import { ObjectId, Types } from 'mongoose'
+import { FilterQuery, ObjectId, Types } from 'mongoose'
 import {
   CreateQuestionParams,
   DeleteQuestionParams,
@@ -21,12 +21,27 @@ export async function getQuestions(params: GetQuestionsParams) {
   try {
     await connectToDb()
 
-    const questions = await Question.find()
+    const { searchQuery, page = 1, pageSize = 10 } = params
+
+    const skipAmount = (page - 1) * pageSize
+
+    const query: FilterQuery<typeof Question> = {}
+
+    if (searchQuery) {
+      query.$or = [{ title: { $regex: new RegExp(searchQuery, 'i') } }, { content: { $regex: new RegExp(searchQuery, 'i') } }]
+    }
+
+    const questions = await Question.find(query)
       .populate({ path: 'tags', model: Tag })
       .populate({ path: 'author', model: User })
-      .sort({ createdAt: -1 })
+      .skip(skipAmount)
+      .limit(pageSize)
 
-    return { questions }
+    const totalQuestions = await Question.estimatedDocumentCount(query)
+
+    const isNext = totalQuestions > skipAmount + questions.length
+
+    return { questions, isNext }
   } catch (error) {
     console.log(error)
   }

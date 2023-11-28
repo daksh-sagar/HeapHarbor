@@ -10,8 +10,8 @@ import { IUser } from '@/database/user.model'
 import { getQuestions } from '@/lib/actions/question.actions'
 import Link from 'next/link'
 
-export default async function Home() {
-  const res = await getQuestions({})
+export default async function Home({ searchParams }: { searchParams: { q: string } }) {
+  const res = await getQuestions({ searchQuery: searchParams.q })
 
   const questions = res?.questions
   return (
