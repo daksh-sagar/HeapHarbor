@@ -10,7 +10,7 @@ import { User } from '@/database/user.model'
 export async function getTopInteractedTags(params: GetTopInteractedTagsParams) {
   try {
     await connectToDb()
-
+    // TODO: implement this method
     // const { userId, limit = 3 } = params
 
     // const user = await User.findById({ userId })
@@ -31,8 +31,22 @@ export async function getAllTags(params: GetAllTagsParams) {
   try {
     await connectToDb()
 
-    const tags = await Tag.find({}).sort({ createdAt: -1 })
-    return { tags }
+    const { searchQuery, page = 1, pageSize = 10 } = params
+    const skipAmount = (page - 1) * pageSize
+
+    const query: FilterQuery<typeof Tag> = {}
+
+    if (searchQuery) {
+      query.$or = [{ name: { $regex: new RegExp(searchQuery, 'i') } }]
+    }
+
+    const totalTags = await Tag.countDocuments(query)
+
+    const tags = await Tag.find(query).skip(skipAmount).limit(pageSize)
+
+    const isNext = totalTags > skipAmount + tags.length
+
+    return { tags, isNext }
   } catch (error) {
     console.error(error)
     throw error
