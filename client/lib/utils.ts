@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import qs from 'query-string'
 
 dayjs.extend(relativeTime)
 
@@ -20,4 +21,35 @@ export function formatAndDivide(num: number): string {
   if (num >= m) return (num / m).toFixed(2) + 'M'
   if (num >= k) return (num / k).toFixed(2) + 'K'
   return num.toString()
+}
+
+type UrlQueryParams = {
+  params: string
+  key: string
+  value: string | null
+}
+
+export function createUrlQuery({ params, key, value }: UrlQueryParams) {
+  const currentUrl = qs.parse(params)
+
+  currentUrl[key] = value
+
+  return qs.stringifyUrl(
+    {
+      url: window.location.pathname,
+      query: currentUrl,
+    },
+    { skipNull: true },
+  )
+}
+
+export function debounce<T extends (...args: any[]) => any>(fn: T, delay: number): (...args: Parameters<T>) => void {
+  let timeout: number
+
+  return (...args: Parameters<T>): void => {
+    window.clearTimeout(timeout)
+    timeout = window.setTimeout(() => {
+      fn(...args)
+    }, delay)
+  }
 }
