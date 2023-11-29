@@ -94,13 +94,13 @@ export async function createQuestion(params: CreateQuestionParams): Promise<void
       Question.findByIdAndUpdate(question._id, {
         $push: { tags: { $each: tagDocuments } },
       }),
-      // Interaction.create({
-      //   user: author,
-      //   action: 'ask_question',
-      //   question: question._id,
-      //   tags: tagDocuments,
-      // }),
-      User.findByIdAndUpdate(author, { $inc: { reputation: 5 } }),
+      Interaction.create({
+        user: author,
+        action: 'ask_question',
+        question: question._id,
+        tags: tagDocuments,
+      }),
+      // User.findByIdAndUpdate(author, { $inc: { reputation: 5 } }),
     ]
 
     await Promise.all(promises)
@@ -155,7 +155,7 @@ export async function upvoteQuestion(params: QuestionVoteParams): Promise<void> 
 
     // Increment author's reputation by +10/-10 for recieving an upvote/downvote to the question
     await User.findByIdAndUpdate(question.author, {
-      $inc: { reputation: hasDownvoted ? -10 : 10 },
+      $inc: { reputation: hasUpvoted ? -10 : hasDownvoted ? 20 : 10 },
     })
 
     revalidatePath(path)
@@ -191,7 +191,7 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
     }
 
     await User.findByIdAndUpdate(question.author, {
-      $inc: { reputation: hasDownvoted ? -10 : 10 },
+      $inc: { reputation: hasDownvoted ? 10 : hasUpvoted ? -20 : -10 },
     })
 
     revalidatePath(path)
