@@ -33,13 +33,13 @@ export async function getAnswers(params: GetAnswersParams) {
   try {
     await connectToDb()
 
-    const { questionId, sortBy, page = 1, pageSize = 10 } = params
+    const { questionId, sort, page = 1, pageSize = 10 } = params
 
     const skipAmount = (page - 1) * pageSize
 
     let sortOptions = {}
 
-    switch (sortBy) {
+    switch (sort) {
       case 'highestUpvotes':
         sortOptions = { upvotes: -1 }
         break

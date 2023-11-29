@@ -31,7 +31,7 @@ export async function getAllTags(params: GetAllTagsParams) {
   try {
     await connectToDb()
 
-    const { searchQuery, page = 1, pageSize = 10 } = params
+    const { searchQuery, sort, page = 1, pageSize = 10 } = params
     const skipAmount = (page - 1) * pageSize
 
     const query: FilterQuery<typeof Tag> = {}
@@ -40,9 +40,29 @@ export async function getAllTags(params: GetAllTagsParams) {
       query.$or = [{ name: { $regex: new RegExp(searchQuery, 'i') } }]
     }
 
-    const totalTags = await Tag.countDocuments(query)
+    let sortOptions = {}
 
-    const tags = await Tag.find(query).skip(skipAmount).limit(pageSize)
+    switch (sort) {
+      case 'popular':
+        sortOptions = { questions: -1 }
+        break
+      case 'recent':
+        sortOptions = { createdAt: -1 }
+        break
+      case 'name':
+        sortOptions = { name: 1 }
+        break
+      case 'old':
+        sortOptions = { createdAt: 1 }
+        break
+
+      default:
+        break
+    }
+
+    const totalTags = await Tag.estimatedDocumentCount(query)
+
+    const tags = await Tag.find(query).sort(sortOptions).skip(skipAmount).limit(pageSize)
 
     const isNext = totalTags > skipAmount + tags.length
 

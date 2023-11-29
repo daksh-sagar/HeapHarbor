@@ -14,14 +14,14 @@ type Props = {
   userId: Types.ObjectId
   totalAnswers: number
   page?: number
-  filter?: string
+  sort?: string
 }
 
-const AllAnswers = async ({ questionId, userId, totalAnswers, page, filter }: Props) => {
+const AllAnswers = async ({ questionId, userId, totalAnswers, page, sort }: Props) => {
   const result = await getAnswers({
     questionId,
     page: page ? +page : 1,
-    sortBy: filter,
+    sort,
   })
 
   return (
