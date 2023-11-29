@@ -9,6 +9,7 @@ import { IUser } from '@/database/user.model'
 import { getQuestionById } from '@/lib/actions/question.actions'
 import { getUserById } from '@/lib/actions/user.actions'
 import { formatAndDivide, getRelativeTime } from '@/lib/utils'
+import { SearchParams } from '@/types'
 import { auth } from '@clerk/nextjs'
 import { Types } from 'mongoose'
 import Image from 'next/image'
@@ -16,7 +17,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
-const Page = async ({ params, searchParams }: { params: { id: string }; searchParams: { sort: string | undefined } }) => {
+const Page = async ({ params, searchParams }: { params: { id: string }; searchParams: SearchParams }) => {
   const result = await getQuestionById({ questionId: params.id })
   if (!result) redirect('/404')
 
@@ -91,6 +92,7 @@ const Page = async ({ params, searchParams }: { params: { id: string }; searchPa
         totalAnswers={result.answers.length}
         userId={mongoUser?._id}
         sort={searchParams.sort}
+        page={searchParams.page}
       />
       <AnswerForm questionId={result._id.toString()} authorId={mongoUser?._id.toString()} question={result.content} />
     </>

@@ -8,16 +8,17 @@ import { ParseHTML } from '../parseHTML/ParseHTML'
 import { IUser } from '@/database/user.model'
 import { Votes } from '../votes/Votes'
 import { Types } from 'mongoose'
+import { Pagination } from '../pagination/Pagination'
 
-type Props = {
+type AllAnswersProps = {
   questionId: string
   userId: Types.ObjectId
   totalAnswers: number
-  page?: number
+  page?: string
   sort?: string
 }
 
-const AllAnswers = async ({ questionId, userId, totalAnswers, page, sort }: Props) => {
+const AllAnswers = async ({ questionId, userId, totalAnswers, page, sort }: AllAnswersProps) => {
   const result = await getAnswers({
     questionId,
     page: page ? +page : 1,
@@ -65,6 +66,7 @@ const AllAnswers = async ({ questionId, userId, totalAnswers, page, sort }: Prop
           )
         })}
       </div>
+      <Pagination pageNumber={page ? +page : 1} isNext={result.isNext} />
     </div>
   )
 }

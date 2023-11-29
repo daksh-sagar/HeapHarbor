@@ -21,7 +21,7 @@ export async function getQuestions(params: GetQuestionsParams) {
   try {
     await connectToDb()
 
-    const { searchQuery, filter, page = 1, pageSize = 10 } = params
+    const { searchQuery, sort, page = 1, pageSize = 10 } = params
 
     const skipAmount = (page - 1) * pageSize
 
@@ -33,7 +33,7 @@ export async function getQuestions(params: GetQuestionsParams) {
 
     let sortOptions = {}
 
-    switch (filter) {
+    switch (sort) {
       case 'newest':
         sortOptions = { createdAt: -1 }
         break

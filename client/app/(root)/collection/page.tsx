@@ -1,14 +1,16 @@
 import { QuestionCard } from '@/components/cards/QuestionCard'
 import { Filter } from '@/components/shared/filter/Filter'
 import { NoResult } from '@/components/shared/noResult/NoResult'
+import { Pagination } from '@/components/shared/pagination/Pagination'
 import { LocalSearchbar } from '@/components/shared/search/LocalSearch'
 import { QuestionFilters } from '@/constants'
 import { ITag } from '@/database/tag.model'
 import { IUser } from '@/database/user.model'
 import { getSavedQuestions } from '@/lib/actions/user.actions'
+import { SearchParams } from '@/types'
 import { auth } from '@clerk/nextjs'
 
-export default async function Collection({ searchParams }: { searchParams: { q: string | undefined; sort: string | undefined } }) {
+export default async function Collection({ searchParams }: { searchParams: SearchParams }) {
   const { userId } = auth()
 
   // TODO: this should be an authenticated route
@@ -18,6 +20,7 @@ export default async function Collection({ searchParams }: { searchParams: { q: 
     clerkId: userId,
     searchQuery: searchParams.q,
     sort: searchParams.sort,
+    page: searchParams.page ? +searchParams.page : undefined,
   })
 
   return (
@@ -60,6 +63,7 @@ export default async function Collection({ searchParams }: { searchParams: { q: 
           />
         )}
       </div>
+      <Pagination pageNumber={searchParams?.page ? +searchParams.page : 1} isNext={result.isNext} />
     </>
   )
 }

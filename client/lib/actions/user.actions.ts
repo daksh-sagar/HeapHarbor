@@ -311,9 +311,9 @@ export async function getUserQuestions(params: GetUserStatsParams) {
       .populate('tags', '_id name')
       .populate('author', '_id clerkId name picture')
 
-    const isNextQuestions = totalQuestions > skipAmount + userQuestions.length
+    const isNext = totalQuestions > skipAmount + userQuestions.length
 
-    return { totalQuestions, questions: userQuestions, isNextQuestions }
+    return { totalQuestions, questions: userQuestions, isNext }
   } catch (error) {
     console.log(error)
     throw error
@@ -337,9 +337,9 @@ export async function getUserAnswers(params: GetUserStatsParams) {
       .populate('question', '_id title')
       .populate('author', '_id clerkId name picture')
 
-    const isNextAnswer = totalAnswers > skipAmount + userAnswers.length
+    const isNext = totalAnswers > skipAmount + userAnswers.length
 
-    return { totalAnswers, answers: userAnswers, isNextAnswer }
+    return { totalAnswers, answers: userAnswers, isNext }
   } catch (error) {
     console.log(error)
     throw error

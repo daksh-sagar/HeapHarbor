@@ -5,15 +5,18 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { LocalSearchbar } from '@/components/shared/search/LocalSearch'
 import { Filter } from '@/components/shared/filter/Filter'
+import { SearchParams } from '@/types'
+import { Pagination } from '@/components/shared/pagination/Pagination'
 
 export const metadata: Metadata = {
   title: 'Community | HeapHarbor',
 }
 
-async function Page({ searchParams }: { searchParams: { q: string | undefined; sort: string | undefined } }) {
+async function Page({ searchParams }: { searchParams: SearchParams }) {
   const res = await getAllUsers({
     searchQuery: searchParams.q,
     sort: searchParams.sort,
+    page: searchParams.page ? +searchParams.page : undefined,
   })
 
   return (
@@ -44,6 +47,7 @@ async function Page({ searchParams }: { searchParams: { q: string | undefined; s
           </div>
         )}
       </section>
+      <Pagination pageNumber={searchParams?.page ? +searchParams.page : 1} isNext={res.isNext} />
     </>
   )
 }
