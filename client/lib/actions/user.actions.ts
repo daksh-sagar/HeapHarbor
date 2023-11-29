@@ -17,6 +17,8 @@ import { IQuestion, Question } from '@/database/question.model'
 import { Document, FilterQuery, Types } from 'mongoose'
 import { Tag } from '@/database/tag.model'
 import { Answer } from '@/database/answer.model'
+import { BadgeCriteriaType } from '@/types'
+import { assignBadges } from '../utils'
 
 export async function getUserById(params: GetUserByIdParams) {
   try {
@@ -282,10 +284,63 @@ export async function getUserInfo(params: GetUserByIdParams) {
     //   },
     // ])
 
+    const [[quesUpvotes], [ansUpvotes], [quesViews]] = await Promise.all([
+      Question.aggregate([
+        { $match: { author: user._id } },
+        {
+          $project: {
+            _id: 0,
+            upvotes: { $size: '$upvotes' },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalUpvotes: { $sum: '$upvotes' },
+          },
+        },
+      ]),
+      await Answer.aggregate([
+        { $match: { author: user._id } },
+        {
+          $project: {
+            _id: 0,
+            upvotes: { $size: '$upvotes' },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalUpvotes: { $sum: '$upvotes' },
+          },
+        },
+      ]),
+      Answer.aggregate([
+        { $match: { author: user._id } },
+        {
+          $group: {
+            _id: null,
+            totalViews: { $sum: '$views' },
+          },
+        },
+      ]),
+    ])
+
+    const stats = [
+      { type: 'QUESTION_COUNT' as BadgeCriteriaType, count: totalQuestions },
+      { type: 'ANSWER_COUNT' as BadgeCriteriaType, count: totalAnswers },
+      { type: 'QUESTION_UPVOTES' as BadgeCriteriaType, count: quesUpvotes?.totalUpvotes || 0 },
+      { type: 'ANSWER_UPVOTES' as BadgeCriteriaType, count: ansUpvotes?.totalUpvotes || 0 },
+      { type: 'TOTAL_VIEWS' as BadgeCriteriaType, count: quesViews?.totalViews || 0 },
+    ]
+
+    const badgeCounts = assignBadges(stats)
+
     return {
       user,
       totalQuestions,
       totalAnswers,
+      badgeCounts,
       reputation: user.reputation,
     }
   } catch (error) {
