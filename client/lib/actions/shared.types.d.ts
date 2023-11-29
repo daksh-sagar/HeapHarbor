@@ -9,7 +9,7 @@ export interface CreateAnswerParams {
 
 export interface GetAnswersParams {
   questionId: string
-  sortBy?: string
+  sort?: string
   page?: number
   pageSize?: number
 }
@@ -92,7 +92,7 @@ export interface EditQuestionParams {
 export interface GetAllTagsParams {
   page?: number
   pageSize?: number
-  filter?: string
+  sort?: string
   searchQuery?: string
 }
 
@@ -123,7 +123,7 @@ export interface GetUserByIdParams {
 export interface GetAllUsersParams {
   page?: number
   pageSize?: number
-  filter?: string
+  sort?: string
   searchQuery?: string // Add searchQuery parameter
 }
 
@@ -143,7 +143,7 @@ export interface GetSavedQuestionsParams {
   clerkId: string
   page?: number
   pageSize?: number
-  filter?: string
+  sort?: string
   searchQuery?: string
 }
 

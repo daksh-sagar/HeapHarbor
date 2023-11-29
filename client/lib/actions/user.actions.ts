@@ -36,7 +36,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
   try {
     await connectToDb()
 
-    const { searchQuery, page = 1, pageSize = 10 } = params
+    const { searchQuery, sort, page = 1, pageSize = 10 } = params
     const skipAmount = (page - 1) * pageSize
 
     const query: FilterQuery<typeof User> = {}
@@ -44,8 +44,24 @@ export async function getAllUsers(params: GetAllUsersParams) {
     if (searchQuery) {
       query.$or = [{ name: { $regex: new RegExp(searchQuery, 'i') } }, { username: { $regex: new RegExp(searchQuery, 'i') } }]
     }
+    let sortOptions = {}
 
-    const users = await User.find(query).skip(skipAmount).limit(pageSize)
+    switch (sort) {
+      case 'new_users':
+        sortOptions = { joinedAt: -1 }
+        break
+      case 'old_users':
+        sortOptions = { joinedAt: 1 }
+        break
+      case 'top_contributors':
+        sortOptions = { reputation: -1 }
+        break
+
+      default:
+        break
+    }
+
+    const users = await User.find(query).sort(sortOptions).skip(skipAmount).limit(pageSize)
 
     const totalUsers = await User.estimatedDocumentCount(query)
     const isNext = totalUsers > skipAmount + users.length
@@ -141,7 +157,7 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
   try {
     await connectToDb()
 
-    const { clerkId, searchQuery, filter, page = 1, pageSize = 20 } = params
+    const { clerkId, searchQuery, sort, page = 1, pageSize = 20 } = params
 
     const skipAmount = (page - 1) * pageSize
 
@@ -149,7 +165,7 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 
     let sortOptions = {}
 
-    switch (filter) {
+    switch (sort) {
       case 'most_recent':
         sortOptions = { createdAt: -1 }
         break
@@ -172,6 +188,7 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
 
     const user = await User.findOne({ clerkId }).populate({
       path: 'saved',
+      model: Question,
       match: query,
       options: {
         sort: sortOptions,

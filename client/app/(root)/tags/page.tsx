@@ -5,8 +5,8 @@ import { TagFilters } from '@/constants/filters'
 import { getAllTags } from '@/lib/actions/tag.actions'
 import Link from 'next/link'
 
-async function Page({ searchParams }: { searchParams: { q: string } }) {
-  const result = await getAllTags({ searchQuery: searchParams.q })
+async function Page({ searchParams }: { searchParams: { q: string | undefined; sort: string | undefined } }) {
+  const result = await getAllTags({ searchQuery: searchParams.q, sort: searchParams.sort })
 
   return (
     <>

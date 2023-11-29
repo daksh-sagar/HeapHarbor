@@ -10,9 +10,10 @@ export const metadata: Metadata = {
   title: 'Community | HeapHarbor',
 }
 
-async function Page({ searchParams }: { searchParams: { q: string | undefined } }) {
+async function Page({ searchParams }: { searchParams: { q: string | undefined; sort: string | undefined } }) {
   const res = await getAllUsers({
     searchQuery: searchParams.q,
+    sort: searchParams.sort,
   })
 
   return (

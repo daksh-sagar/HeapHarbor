@@ -16,7 +16,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
-const Page = async ({ params }: { params: { id: string } }) => {
+const Page = async ({ params, searchParams }: { params: { id: string }; searchParams: { sort: string | undefined } }) => {
   const result = await getQuestionById({ questionId: params.id })
   if (!result) redirect('/404')
 
@@ -86,7 +86,12 @@ const Page = async ({ params }: { params: { id: string } }) => {
           <RenderTag key={tag._id} _id={tag._id} name={tag.name} showCount={false} />
         ))}
       </div>
-      <AllAnswers questionId={result._id.toString()} totalAnswers={result.answers.length} userId={mongoUser?._id} />
+      <AllAnswers
+        questionId={result._id.toString()}
+        totalAnswers={result.answers.length}
+        userId={mongoUser?._id}
+        sort={searchParams.sort}
+      />
       <AnswerForm questionId={result._id.toString()} authorId={mongoUser?._id.toString()} question={result.content} />
     </>
   )
