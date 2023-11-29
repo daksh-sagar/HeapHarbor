@@ -20,7 +20,15 @@ export async function createAnswer(params: CreateAnswerParams): Promise<void> {
       author,
     })
 
-    await Question.findByIdAndUpdate(question, { $push: { answers: answer._id } })
+    const ques = await Question.findByIdAndUpdate(question, { $push: { answers: answer._id } })
+
+    await Interaction.create({
+      user: author,
+      action: 'answer',
+      question,
+      answer: answer._id,
+      tags: ques?.tags,
+    })
 
     revalidatePath(path)
   } catch (error) {
@@ -103,7 +111,7 @@ export async function upvoteAnswer(params: AnswerVoteParams) {
     }
 
     await User.findByIdAndUpdate(answer.author, {
-      $inc: { reputation: hasUpvoted ? -10 : 10 },
+      $inc: { reputation: hasUpvoted ? -10 : hasDownvoted ? 20 : 10 },
     })
 
     revalidatePath(path)
@@ -139,7 +147,7 @@ export async function downvoteAnswer(params: AnswerVoteParams) {
     }
 
     await User.findByIdAndUpdate(answer.author, {
-      $inc: { reputation: hasDownvoted ? -10 : 10 },
+      $inc: { reputation: hasDownvoted ? 10 : hasUpvoted ? -20 : -10 },
     })
 
     revalidatePath(path)
