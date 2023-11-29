@@ -19,16 +19,21 @@ const StatsCard = ({ imgUrl, value, title }: StatsCardProps) => {
   )
 }
 
-interface Props {
+type Props = {
   totalQuestions: number
   totalAnswers: number
   reputation: number
+  badgeCounts: {
+    GOLD: number
+    SILVER: number
+    BRONZE: number
+  }
 }
 
-export const Stats = ({ totalQuestions, totalAnswers, reputation }: Props) => {
+export const Stats = ({ totalQuestions, totalAnswers, reputation, badgeCounts }: Props) => {
   return (
     <div className='mt-10'>
-      <h4 className='h3-semibold text-dark200_light900'>Stats - {reputation}</h4>
+      <h4 className='h3-semibold text-dark200_light900'>Current Reputation - {reputation}</h4>
 
       <div className='xs:grid-cols-2 mt-5 grid grid-cols-1 gap-5 md:grid-cols-4'>
         <div className='light-border background-light900_dark300 shadow-light-300 dark:shadow-dark-200 flex flex-wrap items-center justify-evenly gap-4 rounded-md border p-6'>
@@ -42,11 +47,11 @@ export const Stats = ({ totalQuestions, totalAnswers, reputation }: Props) => {
           </div>
         </div>
 
-        <StatsCard imgUrl='/assets/icons/gold-medal.svg' value={1} title='Gold Badges' />
+        <StatsCard imgUrl='/assets/icons/gold-medal.svg' value={badgeCounts.GOLD} title='Gold Badges' />
 
-        <StatsCard imgUrl='/assets/icons/silver-medal.svg' value={2} title='Silver Badges' />
+        <StatsCard imgUrl='/assets/icons/silver-medal.svg' value={badgeCounts.SILVER} title='Silver Badges' />
 
-        <StatsCard imgUrl='/assets/icons/bronze-medal.svg' value={10} title='Bronze Badges' />
+        <StatsCard imgUrl='/assets/icons/bronze-medal.svg' value={badgeCounts.BRONZE} title='Bronze Badges' />
       </div>
     </div>
   )
