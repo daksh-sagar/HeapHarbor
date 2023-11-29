@@ -54,7 +54,7 @@ export async function getQuestions(params: GetQuestionsParams) {
       .skip(skipAmount)
       .limit(pageSize)
 
-    const totalQuestions = await Question.estimatedDocumentCount(query)
+    const totalQuestions = await Question.countDocuments(query)
 
     const isNext = totalQuestions > skipAmount + questions.length
 

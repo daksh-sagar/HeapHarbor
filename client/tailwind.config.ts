@@ -13,8 +13,10 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          500: '#FF7000',
-          100: '#FFF1E6',
+          500: '#6C5CE7', // New primary color
+          400: '#A594F9', // Variant 400 of the primary color
+          300: '#D1C6FC', // Variant 300 of the primary color
+          100: '#F0E7FE', // Lighter shade of the primary color
         },
         dark: {
           100: '#000000',
@@ -25,8 +27,8 @@ module.exports = {
         },
         light: {
           900: '#FFFFFF',
+          850: '#FAFAFA', // Variant 850 of the light variant
           800: '#F4F6F8',
-          850: '#FDFDFD',
           700: '#DCE3F1',
           500: '#7B8EC8',
           400: '#858EAD',
