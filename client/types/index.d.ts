@@ -4,7 +4,8 @@ export type SidebarLink = {
   label: string
 }
 
+export type SearchParams = { q?: string; sort?: string; page?: string }
 export type URLProps = {
   params: { id: string }
-  searchParams: { [key: string]: string | undefined }
+  searchParams: SearchParams
 }

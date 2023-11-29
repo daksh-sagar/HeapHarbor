@@ -2,18 +2,20 @@ import { AnswerCard } from '@/components/cards/AnswerCard'
 import { IQuestion } from '@/database/question.model'
 import { IUser } from '@/database/user.model'
 import { getUserAnswers } from '@/lib/actions/user.actions'
-import { URLProps } from '@/types'
+import { SearchParams } from '@/types'
 import { Types } from 'mongoose'
+import { Pagination } from '../pagination/Pagination'
 
 type Props = {
   userId: string
   clerkId?: string | null
-  searchParams: Pick<URLProps, 'searchParams'>['searchParams']
+  searchParams: SearchParams
 }
 
-export const AnswersTab = async ({ userId, clerkId }: Props) => {
+export const AnswersTab = async ({ userId, clerkId, searchParams }: Props) => {
   const result = await getUserAnswers({
     userId,
+    page: searchParams?.page ? +searchParams.page : 1,
   })
 
   return (
@@ -29,6 +31,7 @@ export const AnswersTab = async ({ userId, clerkId }: Props) => {
           createdAt={item.createdAt}
         />
       ))}
+      <Pagination pageNumber={searchParams?.page ? +searchParams.page : 1} isNext={result.isNext} />
     </>
   )
 }

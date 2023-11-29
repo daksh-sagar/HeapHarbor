@@ -1,12 +1,18 @@
 import { Filter } from '@/components/shared/filter/Filter'
 import { NoResult } from '@/components/shared/noResult/NoResult'
+import { Pagination } from '@/components/shared/pagination/Pagination'
 import { LocalSearchbar } from '@/components/shared/search/LocalSearch'
 import { TagFilters } from '@/constants/filters'
 import { getAllTags } from '@/lib/actions/tag.actions'
+import { SearchParams } from '@/types'
 import Link from 'next/link'
 
-async function Page({ searchParams }: { searchParams: { q: string | undefined; sort: string | undefined } }) {
-  const result = await getAllTags({ searchQuery: searchParams.q, sort: searchParams.sort })
+async function Page({ searchParams }: { searchParams: SearchParams }) {
+  const result = await getAllTags({
+    searchQuery: searchParams.q,
+    sort: searchParams.sort,
+    page: searchParams.page ? +searchParams.page : undefined,
+  })
 
   return (
     <>
@@ -43,6 +49,7 @@ async function Page({ searchParams }: { searchParams: { q: string | undefined; s
           <NoResult title='No Tags Found' description='It looks like there are no tags found.' link='/ask' linkTitle='Ask a question' />
         )}
       </section>
+      <Pagination pageNumber={searchParams?.page ? +searchParams.page : 1} isNext={result.isNext} />
     </>
   )
 }

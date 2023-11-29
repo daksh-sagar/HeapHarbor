@@ -2,21 +2,39 @@ import { QuestionCard } from '@/components/cards/QuestionCard'
 import { HomeFilters } from '@/components/home/HomeFilters'
 import { Filter } from '@/components/shared/filter/Filter'
 import { NoResult } from '@/components/shared/noResult/NoResult'
+import { Pagination } from '@/components/shared/pagination/Pagination'
 import { LocalSearchbar } from '@/components/shared/search/LocalSearch'
 import { Button } from '@/components/ui/button'
 import { HomePageFilters } from '@/constants'
 import { ITag } from '@/database/tag.model'
 import { IUser } from '@/database/user.model'
 import { getQuestions } from '@/lib/actions/question.actions'
+import { SearchParams } from '@/types'
 import Link from 'next/link'
 
-export default async function Home({ searchParams }: { searchParams: { q: string; filter: string } }) {
-  const res = await getQuestions({ searchQuery: searchParams.q, filter: searchParams.filter })
-  searchParams.toString = () => {
-    return searchParams.q ? (searchParams.filter ? `q=${searchParams.q}&filter=${searchParams.filter}` : `q=${searchParams.q}`) : ''
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  const res = await getQuestions({
+    searchQuery: searchParams.q,
+    sort: searchParams.sort,
+    page: searchParams.page ? +searchParams.page : undefined,
+  })
+
+  searchParams.toString = function (this: SearchParams) {
+    const queryString = Object.entries(this)
+      .map(([key, value]) => {
+        if (typeof value === 'string') {
+          return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+        }
+        return ''
+      })
+      .filter(Boolean)
+      .join('&')
+
+    return '?' + queryString
   }
 
   const questions = res?.questions
+  const isNext = res?.isNext ?? false
   return (
     <>
       <div className='flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center'>
@@ -65,9 +83,7 @@ export default async function Home({ searchParams }: { searchParams: { q: string
           />
         )}
       </div>
-      {/* <div className='mt-10'>
-        <Pagination pageNumber={searchParams?.page ? +searchParams.page : 1} isNext={result.isNext} />
-      </div> */}
+      <Pagination pageNumber={searchParams?.page ? +searchParams.page : 1} isNext={isNext} />
     </>
   )
 }

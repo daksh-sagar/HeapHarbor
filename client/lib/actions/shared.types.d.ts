@@ -53,7 +53,7 @@ export interface GetQuestionsParams {
   page?: number
   pageSize?: number
   searchQuery?: string
-  filter?: string
+  sort?: string
 }
 
 export interface CreateQuestionParams {

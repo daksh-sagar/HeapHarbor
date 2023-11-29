@@ -68,9 +68,9 @@ export async function getAnswers(params: GetAnswersParams) {
       question: questionId,
     })
 
-    const isNextAnswer = totalAnswer > skipAmount + answers.length
+    const isNext = totalAnswer > skipAmount + answers.length
 
-    return { answers, isNextAnswer }
+    return { answers, isNext }
   } catch (error) {
     console.log(error)
     throw error

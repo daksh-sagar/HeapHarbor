@@ -2,17 +2,19 @@ import { QuestionCard } from '@/components/cards/QuestionCard'
 import { ITag } from '@/database/tag.model'
 import { IUser } from '@/database/user.model'
 import { getUserQuestions } from '@/lib/actions/user.actions'
-import { URLProps } from '@/types'
+import { SearchParams } from '@/types'
+import { Pagination } from '../pagination/Pagination'
 
 type Props = {
   userId: string
   clerkId?: string | null
-  searchParams: Pick<URLProps, 'searchParams'>['searchParams']
+  searchParams: SearchParams
 }
 
-export const QuestionsTab = async ({ userId, clerkId }: Props) => {
+export const QuestionsTab = async ({ userId, clerkId, searchParams }: Props) => {
   const result = await getUserQuestions({
     userId,
+    page: searchParams?.page ? +searchParams.page : 1,
   })
 
   return (
@@ -31,6 +33,7 @@ export const QuestionsTab = async ({ userId, clerkId }: Props) => {
           createdAt={question.createdAt}
         />
       ))}
+      <Pagination pageNumber={searchParams?.page ? +searchParams.page : 1} isNext={result.isNext} />
     </>
   )
 }
