@@ -1,5 +1,6 @@
 'use client'
 
+import { toast } from '@/components/ui/use-toast'
 import { downvoteAnswer, upvoteAnswer } from '@/lib/actions/answer.actions'
 import { viewQuestion } from '@/lib/actions/interaction.actions'
 import { downvoteQuestion, upvoteQuestion } from '@/lib/actions/question.actions'
@@ -25,6 +26,12 @@ export function Votes({ type, itemId, userId, upvotes, downvotes, hasDownvoted, 
   const pathname = usePathname()
 
   const handleVote = (action: voteType) => async () => {
+    if (!userId) {
+      return toast({
+        title: 'Please log in',
+        description: `You must be logged in to upvote/downvote ${type === 'question' ? 'a question' : 'an answer'}`,
+      })
+    }
     if (action === 'upvote') {
       if (type === 'question') {
         await upvoteQuestion({
@@ -43,6 +50,10 @@ export function Votes({ type, itemId, userId, upvotes, downvotes, hasDownvoted, 
           path: pathname,
         })
       }
+
+      return toast({
+        description: `Upvote ${hasUpvoted ? 'removed' : 'added'}`,
+      })
     }
 
     if (action === 'downvote') {
@@ -63,6 +74,9 @@ export function Votes({ type, itemId, userId, upvotes, downvotes, hasDownvoted, 
           path: pathname,
         })
       }
+      return toast({
+        description: `Downvote ${hasDownvoted ? 'removed' : 'added'}`,
+      })
     }
   }
 
@@ -72,6 +86,9 @@ export function Votes({ type, itemId, userId, upvotes, downvotes, hasDownvoted, 
       questionId: itemId,
       path: pathname,
     })
+    return toast({
+      description: `Question ${hasSaved ? 'removed from saved questions' : 'added to saved questions'}`,
+    })
   }
 
   useEffect(() => {
@@ -79,8 +96,6 @@ export function Votes({ type, itemId, userId, upvotes, downvotes, hasDownvoted, 
       questionId: itemId,
       userId,
     })
-
-    console.log('i ran')
   }, [userId, itemId])
 
   return (
