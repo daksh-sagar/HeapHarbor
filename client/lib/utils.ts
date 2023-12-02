@@ -31,10 +31,31 @@ type UrlQueryParams = {
   value: string | null
 }
 
+type RemoveQueryParams = {
+  params: string
+  keys: string[]
+}
+
 export function createUrlQuery({ params, key, value }: UrlQueryParams) {
   const currentUrl = qs.parse(params)
 
   currentUrl[key] = value
+
+  return qs.stringifyUrl(
+    {
+      url: window.location.pathname,
+      query: currentUrl,
+    },
+    { skipNull: true },
+  )
+}
+
+export function removeQueryParams({ params, keys }: RemoveQueryParams) {
+  const currentUrl = qs.parse(params)
+
+  keys.forEach(key => {
+    currentUrl[key] = null
+  })
 
   return qs.stringifyUrl(
     {
