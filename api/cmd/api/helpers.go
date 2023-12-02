@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -15,4 +16,24 @@ func (app *application) readIdParam(r *http.Request) (int64, error) {
 		return 0, errors.New("invalid id param")
 	}
 	return id, nil
+}
+
+func (app *application) writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
+	res, err := json.Marshal(data)
+
+	if err != nil {
+		return err
+	}
+
+	res = append(res, '\n')
+
+	for key, val := range headers {
+		w.Header()[key] = val
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write(res)
+
+	return nil
 }
