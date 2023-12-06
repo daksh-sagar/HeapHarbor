@@ -9,7 +9,18 @@ import (
 )
 
 func (app *application) createQuestion(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "create question handler")
+	var input struct {
+		Title   string   `json:"title"`
+		Content string   `json:"content"`
+		Answers []string `json:"answers"`
+	}
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestError(w, r, err)
+	}
+
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 func (app *application) getQuestionById(w http.ResponseWriter, r *http.Request) {
