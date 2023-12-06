@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: heapharbor
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: pa55word
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./enableCitext.sql:/docker-entrypoint-initdb.d/enableCitext.sql
+
+volumes:
+  postgres_data:
+    driver: local
