@@ -18,6 +18,8 @@ func (app *application) routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodGet, "/v1/questions/:id", app.getQuestionById)
 	router.HandlerFunc(http.MethodGet, "/v1/questions/:id/answers", app.getAnswers)
 
+	router.HandlerFunc(http.MethodPost, "/v1/users", app.createUser)
+
 	return router
 
 }
