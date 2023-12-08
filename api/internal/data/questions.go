@@ -34,7 +34,81 @@ func (m QuestionModel) GetAll() ([]*Question, error) {
 }
 
 func (m QuestionModel) GetById(id int64) (*Question, error) {
-	return nil, nil
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+        SELECT
+            q._id,
+            q.title,
+            q.content,
+            q.views,
+            u._id as author_id,
+            u.name as author_name,
+            u.clerkId as author_clerk_id,
+            u.picture as author_picture,
+            ARRAY(
+                SELECT uup._id
+                FROM users uup
+                JOIN questionsUpvotes qu ON uup._id = qu.userId
+                WHERE qu.questionId = q._id
+            ) AS upvotes,
+            ARRAY(
+                SELECT udown._id
+                FROM users udown
+                JOIN questionsDownvotes qd ON udown._id = qd.userId
+                WHERE qd.questionId = q._id
+            ) AS downvotes,
+            ARRAY(
+                SELECT t._id
+                FROM tags t
+                JOIN questionsTags qt ON t._id = qt.tagId
+                WHERE qt.questionId = q._id
+            ) AS tagsIds,
+						ARRAY(
+                SELECT t.name
+                FROM tags t
+                JOIN questionsTags qt ON t._id = qt.tagId
+                WHERE qt.questionId = q._id
+            ) AS tagsNames
+        FROM questions q
+        JOIN users u ON q.authorId = u._id
+        WHERE q._id = $1
+    `
+
+	// Execute the query to fetch the question data
+	var question Question
+	var tagIds []int64
+	var tagNames []string
+	err := m.DB.QueryRow(context.Background(), query, id).Scan(
+		&question.ID,
+		&question.Title,
+		&question.Content,
+		&question.Views,
+		&question.Author.ID,
+		&question.Author.Name,
+		&question.Author.ClerkID,
+		&question.Author.Picture,
+		&question.Upvotes,
+		&question.Downvotes,
+		&tagIds,
+		&tagNames,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for i, id := range tagIds {
+		tag := Tag{
+			ID:   id,
+			Name: tagNames[i],
+		}
+		question.Tags = append(question.Tags, tag)
+	}
+
+	return &question, nil
 }
 
 func (m QuestionModel) Update(question *Question) error {
