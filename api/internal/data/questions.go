@@ -48,7 +48,7 @@ func (m QuestionModel) Delete(id int64) error {
 func (m QuestionModel) Insert(question *CreateQuestionParams) error {
 
 	// Start a transaction to ensure data consistency
-	tx, err := m.DB.BeginTx(context.Background(), pgx.TxOptions{})
+	tx, err := m.DB.BeginTx(context.Background(), pgx.TxOptions{IsoLevel: pgx.ReadUncommitted})
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
@@ -137,7 +137,7 @@ func (m QuestionModel) getExistingTag(tx pgx.Tx, name string) (*Tag, error) {
 }
 
 // Associate question with existing or newly created tag
-func (m QuestionModel) associateQuestionTag(tx pgx.Tx, questionID, tagID int64) error {
+func (m QuestionModel) associateQuestionTag(tx pgx.Tx, questionId, tagId int64) error {
 	// Check if association already exists
 	stmt := `
     SELECT questionId, tagId 
@@ -149,7 +149,7 @@ func (m QuestionModel) associateQuestionTag(tx pgx.Tx, questionID, tagID int64) 
 		QuestionId int64
 		TagId      int64
 	}
-	err := tx.QueryRow(context.Background(), stmt, questionID, tagID).Scan(
+	err := tx.QueryRow(context.Background(), stmt, questionId, tagId).Scan(
 		&existingAssociation.QuestionId,
 		&existingAssociation.TagId,
 	)
@@ -162,7 +162,7 @@ func (m QuestionModel) associateQuestionTag(tx pgx.Tx, questionID, tagID int64) 
         VALUES ($1, $2)
       `
 
-			err = tx.QueryRow(context.Background(), stmt, questionID, tagID).Scan()
+			_, err = tx.Exec(context.Background(), stmt, questionId, tagId)
 			if err != nil {
 				return fmt.Errorf("error associating question-tag: %w", err)
 			}
