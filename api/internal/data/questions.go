@@ -48,7 +48,7 @@ func (m QuestionModel) Delete(id int64) error {
 func (m QuestionModel) Insert(question *CreateQuestionParams) error {
 
 	// Start a transaction to ensure data consistency
-	tx, err := m.DB.BeginTx(context.Background(), pgx.TxOptions{IsoLevel: pgx.ReadUncommitted})
+	tx, err := m.DB.BeginTx(context.Background(), pgx.TxOptions{})
 	if err != nil {
 		return fmt.Errorf("error starting transaction: %w", err)
 	}
