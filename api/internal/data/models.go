@@ -13,11 +13,13 @@ var (
 type Models struct {
 	Questions QuestionModel
 	Users     UserModel
+	Answers   AnswerModel
 }
 
 func NewModels(db *pgxpool.Pool) Models {
 	return Models{
 		Questions: QuestionModel{DB: db},
 		Users:     UserModel{DB: db},
+		Answers:   AnswerModel{DB: db},
 	}
 }
