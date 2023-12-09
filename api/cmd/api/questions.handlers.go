@@ -76,5 +76,16 @@ func (app *application) getAnswers(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	fmt.Fprintf(w, "get answers for question with id: %d\n", id)
+
+	answers, err := app.models.Answers.GetAnswersForQuestion(id)
+
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"answers": answers}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
