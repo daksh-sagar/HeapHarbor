@@ -50,7 +50,7 @@ func (app *application) getQuestionById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	movie, err := app.models.Questions.GetById(id)
+	question, err := app.models.Questions.GetById(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
@@ -61,7 +61,7 @@ func (app *application) getQuestionById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"question": question}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
