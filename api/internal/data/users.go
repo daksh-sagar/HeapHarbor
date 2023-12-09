@@ -2,7 +2,9 @@ package data
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -22,4 +24,52 @@ func (m *UserModel) Add(user *User) error {
 	user.ID = _id
 
 	return err
+}
+
+func (m *UserModel) GetByClerkId(id string) (*User, error) {
+	query := `
+					SELECT
+					u._id, u.clerkId, u.name, u.username, u.email,
+					COALESCE(u.bio, ''), COALESCE(u.picture, ''), COALESCE(u.location, ''), COALESCE(u.portfolioWebsite, ''),
+					u.reputation,
+            ARRAY(
+                SELECT questionId
+                FROM usersSavedQuestions
+                WHERE userId = u._id
+            ) AS saved_ids
+        FROM
+            users u
+        WHERE
+            u.clerkId = $1
+    `
+
+	row := m.DB.QueryRow(context.Background(), query, id)
+
+	// Create a User struct to hold the fetched user data
+	var user User
+
+	// Scan the row into the User struct
+	err := row.Scan(
+		&user.ID,
+		&user.ClerkID,
+		&user.Name,
+		&user.Username,
+		&user.Email,
+		&user.Bio,
+		&user.Picture,
+		&user.Location,
+		&user.Website,
+		&user.Reputation,
+		&user.SavedIds, // Scan the saved question IDs into a slice
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
 }

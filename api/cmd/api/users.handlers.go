@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/daksh-sagar/HeapHarbor/api/internal/data"
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
@@ -42,4 +44,31 @@ func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+func (app *application) getUserByClerkId(w http.ResponseWriter, r *http.Request) {
+	params := httprouter.ParamsFromContext(r.Context())
+	id := params.ByName("id")
+	if id == "" {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	user, err := app.models.Users.GetByClerkId(id)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"user": user}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
 }

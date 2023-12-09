@@ -97,7 +97,12 @@ func (m QuestionModel) GetById(id int64) (*Question, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
 	}
 
 	for i, id := range tagIds {
