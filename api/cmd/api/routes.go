@@ -21,6 +21,8 @@ func (app *application) routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodGet, "/v1/questions/:id/answers", app.getAnswers)
 
 	router.HandlerFunc(http.MethodPost, "/v1/answers", app.createAnswer)
+	router.HandlerFunc(http.MethodPost, "/v1/answers/:id/upvote", app.upvoteAnswer)
+	router.HandlerFunc(http.MethodPost, "/v1/answers/:id/downvote", app.downvoteAnswer)
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.createUser)
 	router.HandlerFunc(http.MethodGet, "/v1/users/:id", app.getUserByClerkId)

@@ -39,3 +39,70 @@ func (app *application) createAnswer(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) upvoteAnswer(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	var input struct {
+		UserId int64 `json:"userId"`
+	}
+
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestError(w, r, err)
+		return
+	}
+
+	vote := &data.AnswerVoteParams{
+		AnswerId: id,
+		UserId:   input.UserId,
+	}
+
+	upvote, err := app.models.Answers.Upvote(vote)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"upvote": upvote}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) downvoteAnswer(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+	var input struct {
+		UserId int64 `json:"userId"`
+	}
+
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestError(w, r, err)
+		return
+	}
+
+	vote := &data.AnswerVoteParams{
+		AnswerId: id,
+		UserId:   input.UserId,
+	}
+
+	downvote, err := app.models.Answers.Downvote(vote)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"downvote": downvote}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
