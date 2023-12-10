@@ -3,8 +3,8 @@ package data
 import "time"
 
 type User struct {
-	ID         int64       `json:"_id"`
-	ClerkID    string      `json:"clerkId"`
+	Id         int64       `json:"_id"`
+	ClerkId    string      `json:"clerkId"`
 	Name       string      `json:"name"`
 	Username   string      `json:"username"`
 	Email      string      `json:"email"`

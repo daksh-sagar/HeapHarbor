@@ -12,6 +12,21 @@ type AnswerModel struct {
 	DB *pgxpool.Pool
 }
 
+func (m *AnswerModel) Add(answer *CreateAnswerParams) error {
+	stmt := `
+    INSERT INTO answers (content, questionId, authorId)
+    VALUES ($1, $2, $3)
+    RETURNING _id
+  `
+	var _id int64
+
+	err := m.DB.QueryRow(context.Background(), stmt, answer.Content, answer.QuestionId, answer.AuthorId).Scan(&_id)
+
+	answer.Id = _id
+
+	return err
+}
+
 func (m *AnswerModel) GetById(id int64) (*Answer, error) {
 	query := `
         SELECT
@@ -41,9 +56,9 @@ func (m *AnswerModel) GetById(id int64) (*Answer, error) {
 	var answer Answer
 
 	err := row.Scan(
-		&answer.ID,
-		&answer.Author.ID,
-		&answer.Author.ClerkID,
+		&answer.Id,
+		&answer.Author.Id,
+		&answer.Author.ClerkId,
 		&answer.Author.Name,
 		&answer.Author.Picture,
 		&answer.Upvotes,
@@ -63,7 +78,7 @@ func (m *AnswerModel) GetById(id int64) (*Answer, error) {
 	return &answer, nil
 }
 
-func (m *AnswerModel) GetAnswersForQuestion(questionId int64) ([]*Answer, error) {
+func (m *AnswerModel) GetForAQuestion(questionId int64) ([]*Answer, error) {
 	query := `
         SELECT
             a._id, a.authorId,
@@ -101,9 +116,9 @@ func (m *AnswerModel) GetAnswersForQuestion(questionId int64) ([]*Answer, error)
 		var answer Answer
 
 		err := rows.Scan(
-			&answer.ID,
-			&answer.Author.ID,
-			&answer.Author.ClerkID,
+			&answer.Id,
+			&answer.Author.Id,
+			&answer.Author.ClerkId,
 			&answer.Author.Name,
 			&answer.Author.Picture,
 			&answer.Upvotes,

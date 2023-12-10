@@ -3,7 +3,7 @@ package data
 import "time"
 
 type Question struct {
-	ID        int64     `json:"_id"`
+	Id        int64     `json:"_id"`
 	Title     string    `json:"title"`
 	Content   string    `json:"content"`
 	Tags      []Tag     `json:"tags"`
@@ -17,7 +17,7 @@ type Question struct {
 }
 
 type CreateQuestionParams struct {
-	ID       int64
+	Id       int64
 	Title    string
 	Content  string
 	AuthorId int64

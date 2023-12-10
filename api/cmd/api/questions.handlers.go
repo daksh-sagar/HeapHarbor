@@ -35,7 +35,7 @@ func (app *application) createQuestion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	headers := make(http.Header)
-	headers.Set("Location", fmt.Sprintf("/v1/questions/%d", question.ID))
+	headers.Set("Location", fmt.Sprintf("/v1/questions/%d", question.Id))
 
 	err = app.writeJSON(w, http.StatusCreated, envelope{"question": question}, headers)
 	if err != nil {
@@ -77,7 +77,7 @@ func (app *application) getAnswers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	answers, err := app.models.Answers.GetAnswersForQuestion(id)
+	answers, err := app.models.Answers.GetForAQuestion(id)
 
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

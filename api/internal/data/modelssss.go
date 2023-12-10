@@ -16,18 +16,6 @@ type QuestionDB struct {
 	Downvotes []int64   `json:"downvotes"`
 }
 
-type Answer struct {
-	ID         string    `db:"_id"`
-	Author     User      `db:"-"`
-	AuthorID   int64     `db:"authorId"`
-	Question   Question  `db:"-"`
-	QuestionID int64     `db:"questionId"`
-	Content    string    `db:"content"`
-	CreatedAt  time.Time `db:"createdAt"`
-	Upvotes    []int64   `db:"-"`
-	Downvotes  []int64   `db:"-"`
-}
-
 type TagDb struct {
 	ID          int64      `json:"_id"`
 	Name        string     `json:"name"`

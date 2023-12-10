@@ -11,7 +11,7 @@ import (
 
 func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		ClerkID  string `json:"clerkId"`
+		ClerkId  string `json:"clerkId"`
 		Username string `json:"username"`
 		Name     string `json:"name"`
 		Email    string `json:"email"`
@@ -24,7 +24,7 @@ func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := &data.User{
-		ClerkID:  input.ClerkID,
+		ClerkId:  input.ClerkId,
 		Username: input.Username,
 		Name:     input.Name,
 		Email:    input.Email,
@@ -38,7 +38,7 @@ func (app *application) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	headers := make(http.Header)
-	headers.Set("Location", fmt.Sprintf("/v1/users/%d", user.ID))
+	headers.Set("Location", fmt.Sprintf("/v1/users/%d", user.Id))
 
 	err = app.writeJSON(w, http.StatusCreated, envelope{"user": user}, headers)
 	if err != nil {
