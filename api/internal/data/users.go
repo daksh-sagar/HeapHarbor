@@ -19,9 +19,9 @@ func (m *UserModel) Add(user *User) error {
     RETURNING _id
   `
 	var _id int64
-	err := m.DB.QueryRow(context.Background(), stmt, user.ClerkID, user.Name, user.Username, user.Email, user.Picture).Scan(&_id)
+	err := m.DB.QueryRow(context.Background(), stmt, user.ClerkId, user.Name, user.Username, user.Email, user.Picture).Scan(&_id)
 
-	user.ID = _id
+	user.Id = _id
 
 	return err
 }
@@ -50,8 +50,8 @@ func (m *UserModel) GetByClerkId(id string) (*User, error) {
 
 	// Scan the row into the User struct
 	err := row.Scan(
-		&user.ID,
-		&user.ClerkID,
+		&user.Id,
+		&user.ClerkId,
 		&user.Name,
 		&user.Username,
 		&user.Email,

@@ -24,7 +24,7 @@ func (m QuestionModel) Add(question *Question) error {
 	err := m.DB.QueryRow(context.Background(), stmt, question.Title, question.Content, question.AuthorId).Scan(&_id)
 
 	// Update question ID with inserted value
-	question.ID = _id
+	question.Id = _id
 
 	return err
 }
@@ -82,13 +82,13 @@ func (m QuestionModel) GetById(id int64) (*Question, error) {
 	var tagIds []int64
 	var tagNames []string
 	err := m.DB.QueryRow(context.Background(), query, id).Scan(
-		&question.ID,
+		&question.Id,
 		&question.Title,
 		&question.Content,
 		&question.Views,
-		&question.Author.ID,
+		&question.Author.Id,
 		&question.Author.Name,
-		&question.Author.ClerkID,
+		&question.Author.ClerkId,
 		&question.Author.Picture,
 		&question.Upvotes,
 		&question.Downvotes,
@@ -107,7 +107,7 @@ func (m QuestionModel) GetById(id int64) (*Question, error) {
 
 	for i, id := range tagIds {
 		tag := Tag{
-			ID:   id,
+			Id:   id,
 			Name: tagNames[i],
 		}
 		question.Tags = append(question.Tags, tag)
@@ -139,15 +139,15 @@ func (m QuestionModel) Insert(question *CreateQuestionParams) error {
     RETURNING _id
   `
 
-	var questionID int64
-	err = tx.QueryRow(context.Background(), stmt, question.Title, question.Content, question.AuthorId).Scan(&questionID)
+	var questionId int64
+	err = tx.QueryRow(context.Background(), stmt, question.Title, question.Content, question.AuthorId).Scan(&questionId)
 	if err != nil {
 		tx.Rollback(context.Background())
 		return fmt.Errorf("error adding question: %w", err)
 	}
 
 	// Update the question ID
-	question.ID = questionID
+	question.Id = questionId
 
 	// Loop through provided tag names
 	for _, tag := range question.Tags {
@@ -159,7 +159,7 @@ func (m QuestionModel) Insert(question *CreateQuestionParams) error {
 		}
 
 		// Associate the question with the existing or newly created tag
-		err = m.associateQuestionTag(tx, questionID, existingTag.ID)
+		err = m.associateQuestionTag(tx, questionId, existingTag.Id)
 		if err != nil {
 			tx.Rollback(context.Background())
 			return fmt.Errorf("error associating question-tag: %w", err)
@@ -186,7 +186,7 @@ func (m QuestionModel) getExistingTag(tx pgx.Tx, name string) (*Tag, error) {
 
 	var tag Tag
 	err := tx.QueryRow(context.Background(), stmt, name).Scan(
-		&tag.ID,
+		&tag.Id,
 	)
 
 	if err != nil {
@@ -198,14 +198,14 @@ func (m QuestionModel) getExistingTag(tx pgx.Tx, name string) (*Tag, error) {
         RETURNING _id
       `
 
-			var tagID int64
-			err = tx.QueryRow(context.Background(), stmt, name).Scan(&tagID)
+			var tagId int64
+			err = tx.QueryRow(context.Background(), stmt, name).Scan(&tagId)
 			if err != nil {
 				return nil, fmt.Errorf("error creating tag: %w", err)
 			}
 
 			// Update tag with ID
-			tag.ID = tagID
+			tag.Id = tagId
 			tag.Name = name
 		} else {
 			return nil, fmt.Errorf("error getting tag: %w", err)

@@ -3,13 +3,20 @@ package data
 import "time"
 
 type Answer struct {
-	ID         string    `json:"_id"`
+	Id         int64     `json:"_id"`
 	Author     User      `json:"author"`
-	AuthorID   int64     `json:"authorId"`
+	AuthorId   int64     `json:"authorId"`
 	Question   Question  `json:"question"`
-	QuestionID int64     `json:"questionId"`
+	QuestionId int64     `json:"questionId"`
 	Content    string    `json:"content"`
 	CreatedAt  time.Time `json:"createdAt"`
 	Upvotes    []int64   `json:"upvotes"`
 	Downvotes  []int64   `json:"downvotes"`
+}
+
+type CreateAnswerParams struct {
+	Id         int64
+	AuthorId   int64
+	QuestionId int64
+	Content    string
 }
