@@ -116,6 +116,80 @@ func (m QuestionModel) GetById(id int64) (*Question, error) {
 	return &question, nil
 }
 
+func (m *QuestionModel) GetByUserId(id int64) ([]*Question, error) {
+	// Prepare the query to fetch questions by user ID along with aggregated tag IDs and names
+	query := `
+			SELECT
+					q._id, q.title,
+					ARRAY_AGG(t._id) AS tag_ids,
+					ARRAY_AGG(t.name) AS tag_names,
+					u._id, u.clerkId, u.name, u.picture
+			FROM
+					questions q
+			JOIN
+					users u ON q.authorId = u._id
+			LEFT JOIN
+					questionsTags qt ON q._id = qt.questionId
+			LEFT JOIN
+					tags t ON qt.tagId = t._id
+			WHERE
+					q.authorId = $1
+			GROUP BY
+					q._id, u._id
+	`
+
+	// Execute the query to fetch questions by user ID
+	rows, err := m.DB.Query(context.Background(), query, id)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching questions: %w", err)
+	}
+	defer rows.Close()
+
+	// Create a slice to hold the fetched questions
+	var questions []*Question
+
+	// Iterate through the rows and populate the questions slice
+	for rows.Next() {
+		var question Question
+		var tagIds []int64
+		var tagNames []string
+		var author User
+
+		// Scan the row into the Question, tag IDs, tag names, and User structs
+		err := rows.Scan(
+			&question.Id,
+			&question.Title,
+			&tagIds,
+			&tagNames,
+			&author.Id,
+			&author.ClerkId,
+			&author.Name,
+			&author.Picture,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		// Populate tags for the question from aggregated arrays
+		for i, tagId := range tagIds {
+			question.Tags = append(question.Tags, Tag{Id: tagId, Name: tagNames[i]})
+		}
+
+		// Set the author for the question
+		question.Author = author
+
+		// Append the question to the questions slice
+		questions = append(questions, &question)
+	}
+
+	// Check for any errors encountered during rows iteration
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating through rows: %w", err)
+	}
+
+	return questions, nil
+}
+
 func (m QuestionModel) Update(question *Question) error {
 	return nil
 }
