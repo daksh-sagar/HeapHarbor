@@ -20,3 +20,8 @@ type CreateAnswerParams struct {
 	QuestionId int64
 	Content    string
 }
+
+type AnswerVoteParams struct {
+	UserId   int64
+	AnswerId int64
+}
