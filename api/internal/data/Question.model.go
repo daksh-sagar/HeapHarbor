@@ -23,3 +23,9 @@ type CreateQuestionParams struct {
 	AuthorId int64
 	Tags     []string
 }
+
+type QuestionVoteParams struct {
+	Id         int64
+	UserId     int64
+	QuestionId int64
+}

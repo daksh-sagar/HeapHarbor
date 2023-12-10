@@ -124,6 +124,160 @@ func (m QuestionModel) Delete(id int64) error {
 	return nil
 }
 
+func (m *QuestionModel) Upvote(upvote *QuestionVoteParams) (*QuestionVoteParams, error) {
+	tx, err := m.DB.BeginTx(context.Background(), pgx.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	defer tx.Rollback(context.Background())
+
+	downvoteExists, err := m.checkDownvoteExists(tx, upvote.UserId, upvote.QuestionId)
+	if err != nil {
+		return nil, fmt.Errorf("error checking downvote: %w", err)
+	}
+
+	// If a downvote exists, remove it
+	if downvoteExists {
+		if err := m.deleteDownvote(tx, upvote.UserId, upvote.QuestionId); err != nil {
+			return nil, fmt.Errorf("error deleting downvote: %w", err)
+		}
+	} else {
+		upvoteExists, err := m.checkUpvoteExists(tx, upvote.UserId, upvote.QuestionId)
+		if err != nil {
+			return nil, fmt.Errorf("error checking upvote: %w", err)
+		}
+
+		// If an upvote exists, remove it and return
+		if upvoteExists {
+			if err := m.deleteUpvote(tx, upvote.UserId, upvote.QuestionId); err != nil {
+				return nil, fmt.Errorf("error deleting upvote: %w", err)
+			}
+			if err := tx.Commit(context.Background()); err != nil {
+				return nil, fmt.Errorf("error committing transaction: %w", err)
+			}
+			return upvote, nil
+		}
+	}
+
+	// Insert the upvote if it doesn't exist
+	stmt := `
+			INSERT INTO questionsUpvotes (userId, questionId)
+			VALUES ($1, $2)
+	`
+	_, err = tx.Exec(context.Background(), stmt, upvote.UserId, upvote.QuestionId)
+	if err != nil {
+		return nil, fmt.Errorf("error inserting upvote: %w", err)
+	}
+
+	if err := tx.Commit(context.Background()); err != nil {
+		return nil, fmt.Errorf("error committing transaction: %w", err)
+	}
+
+	return upvote, nil
+}
+
+func (m *QuestionModel) Downvote(downvote *QuestionVoteParams) (*QuestionVoteParams, error) {
+	tx, err := m.DB.BeginTx(context.Background(), pgx.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	defer tx.Rollback(context.Background())
+
+	upvoteExists, err := m.checkUpvoteExists(tx, downvote.UserId, downvote.QuestionId)
+	if err != nil {
+		return nil, fmt.Errorf("error checking upvote: %w", err)
+	}
+
+	// If an upvote exists, remove it
+	if upvoteExists {
+		if err := m.deleteUpvote(tx, downvote.UserId, downvote.QuestionId); err != nil {
+			return nil, fmt.Errorf("error deleting upvote: %w", err)
+		}
+	} else {
+		downvoteExists, err := m.checkDownvoteExists(tx, downvote.UserId, downvote.QuestionId)
+		if err != nil {
+			return nil, fmt.Errorf("error checking downvote: %w", err)
+		}
+
+		if downvoteExists {
+			if err := m.deleteDownvote(tx, downvote.UserId, downvote.QuestionId); err != nil {
+				return nil, fmt.Errorf("error deleting downvote: %w", err)
+			}
+			if err := tx.Commit(context.Background()); err != nil {
+				return nil, fmt.Errorf("error committing transaction: %w", err)
+			}
+			return downvote, nil
+		}
+	}
+
+	stmt := `INSERT INTO questionsDownvotes (userId, questionId)
+					 VALUES ($1, $2)
+	`
+
+	_, err = tx.Exec(context.Background(), stmt, downvote.UserId, downvote.QuestionId)
+	if err != nil {
+		return nil, fmt.Errorf("error inserting downvote: %w", err)
+	}
+
+	if err := tx.Commit(context.Background()); err != nil {
+		return nil, fmt.Errorf("error committing transaction: %w", err)
+	}
+
+	return downvote, nil
+}
+
+func (m *QuestionModel) checkDownvoteExists(tx pgx.Tx, userId, questionId int64) (bool, error) {
+	stmt := `
+			SELECT EXISTS (
+					SELECT 1
+					FROM questionsDownvotes
+					WHERE userId = $1 AND questionId = $2
+			)
+	`
+	var exists bool
+	err := tx.QueryRow(context.Background(), stmt, userId, questionId).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
+func (m *QuestionModel) deleteDownvote(tx pgx.Tx, userId, questionId int64) error {
+	stmt := `
+			DELETE FROM questionsDownvotes
+			WHERE userId = $1 AND questionId = $2
+	`
+	_, err := tx.Exec(context.Background(), stmt, userId, questionId)
+	return err
+}
+
+func (m *QuestionModel) checkUpvoteExists(tx pgx.Tx, userId, questionId int64) (bool, error) {
+	stmt := `
+			SELECT EXISTS (
+					SELECT 1
+					FROM questionsUpvotes
+					WHERE userId = $1 AND questionId = $2
+			)
+	`
+	var exists bool
+	err := tx.QueryRow(context.Background(), stmt, userId, questionId).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
+func (m *QuestionModel) deleteUpvote(tx pgx.Tx, userId, questionId int64) error {
+	stmt := `
+			DELETE FROM questionsUpvotes
+			WHERE userId = $1 AND questionId = $2
+	`
+	_, err := tx.Exec(context.Background(), stmt, userId, questionId)
+	return err
+}
+
 func (m QuestionModel) Insert(question *CreateQuestionParams) error {
 
 	// Start a transaction to ensure data consistency
