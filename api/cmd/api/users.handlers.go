@@ -72,3 +72,25 @@ func (app *application) getUserByClerkId(w http.ResponseWriter, r *http.Request)
 	}
 
 }
+
+func (app *application) getUserQuestions(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	questions, err := app.models.Questions.GetByUserId(id)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"questions": questions}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+}
+
+func (app *application) getUserAnswers(w http.ResponseWriter, r *http.Request) {}
