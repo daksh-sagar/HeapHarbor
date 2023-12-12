@@ -117,45 +117,57 @@ func (m QuestionModel) GetById(id int64) (*Question, error) {
 }
 
 func (m *QuestionModel) GetByUserId(id int64) ([]*Question, error) {
-	// Prepare the query to fetch questions by user ID along with aggregated tag IDs and names
 	query := `
+		SELECT
+			q._id,
+			q.title,
+			ARRAY_REMOVE(ARRAY_AGG(t._id), null) AS tag_ids,
+			ARRAY_REMOVE(ARRAY_AGG(t.name), null) AS tag_names,
+			u._id,
+			u.clerkId,
+			u.name,
+			u.picture,
+			ARRAY_REMOVE(ARRAY_AGG(DISTINCT qu.userId), null) AS upvoted_by_users,
+			COALESCE(a.answer_count, 0) AS answer_count
+		FROM
+			questions q
+		JOIN
+			users u ON q.authorId = u._id
+		LEFT JOIN
+			questionsTags qt ON q._id = qt.questionId
+		LEFT JOIN
+			tags t ON qt.tagId = t._id
+		LEFT JOIN (
 			SELECT
-					q._id, q.title,
-					ARRAY_AGG(t._id) AS tag_ids,
-					ARRAY_AGG(t.name) AS tag_names,
-					u._id, u.clerkId, u.name, u.picture
+					questionId,
+					COUNT(*) AS answer_count
 			FROM
-					questions q
-			JOIN
-					users u ON q.authorId = u._id
-			LEFT JOIN
-					questionsTags qt ON q._id = qt.questionId
-			LEFT JOIN
-					tags t ON qt.tagId = t._id
-			WHERE
-					q.authorId = $1
+					answers
 			GROUP BY
-					q._id, u._id
+					questionId
+		) a ON q._id = a.questionId
+		LEFT JOIN
+			questionsUpvotes qu ON q._id = qu.questionId
+		WHERE
+			q.authorId = $1
+		GROUP BY
+			q._id, u._id, a.answer_count;
 	`
 
-	// Execute the query to fetch questions by user ID
 	rows, err := m.DB.Query(context.Background(), query, id)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching questions: %w", err)
 	}
 	defer rows.Close()
 
-	// Create a slice to hold the fetched questions
 	var questions []*Question
 
-	// Iterate through the rows and populate the questions slice
 	for rows.Next() {
 		var question Question
 		var tagIds []int64
 		var tagNames []string
 		var author User
 
-		// Scan the row into the Question, tag IDs, tag names, and User structs
 		err := rows.Scan(
 			&question.Id,
 			&question.Title,
@@ -165,24 +177,22 @@ func (m *QuestionModel) GetByUserId(id int64) ([]*Question, error) {
 			&author.ClerkId,
 			&author.Name,
 			&author.Picture,
+			&question.Upvotes,
+			&question.AnswersCount,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning row: %w", err)
 		}
 
-		// Populate tags for the question from aggregated arrays
 		for i, tagId := range tagIds {
 			question.Tags = append(question.Tags, Tag{Id: tagId, Name: tagNames[i]})
 		}
 
-		// Set the author for the question
 		question.Author = author
 
-		// Append the question to the questions slice
 		questions = append(questions, &question)
 	}
 
-	// Check for any errors encountered during rows iteration
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("error iterating through rows: %w", err)
 	}
@@ -194,7 +204,28 @@ func (m QuestionModel) Update(question *Question) error {
 	return nil
 }
 
-func (m QuestionModel) Delete(id int64) error {
+func (m *QuestionModel) Delete(id int64) error {
+	query := `
+		DELETE FROM
+			questions
+		WHERE
+			_id = $1
+		RETURNING
+			_id
+	`
+
+	var _id int64
+	err := m.DB.QueryRow(context.Background(), query, id).Scan(&_id)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return ErrRecordNotFound
+		default:
+			return err
+		}
+	}
+
 	return nil
 }
 
