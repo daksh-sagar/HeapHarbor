@@ -139,6 +139,65 @@ func (m *AnswerModel) GetForAQuestion(questionId int64) ([]*Answer, error) {
 
 }
 
+func (m *AnswerModel) GetByUserId(userId int64) ([]*Answer, error) {
+	query := `
+		SELECT
+			a._id AS answer_id,
+			a.questionId AS question_id,
+			q.title AS question_title,
+			q.authorId AS question_author_id,
+			u.clerkId AS clerkId,
+			u.name AS author_name,
+			u.picture AS author_picture,
+			ARRAY_REMOVE(ARRAY_AGG(DISTINCT au.userId), null) AS upvotes
+		FROM
+			answers a
+		JOIN
+			questions q ON a.questionId = q._id
+		JOIN
+			users u ON q.authorId = u._id
+		LEFT JOIN
+			answersUpvotes au ON a._id = au.answerId
+		WHERE
+			a.authorId = $1
+		GROUP BY
+			a._id, q._id, u._id;
+	`
+
+	rows, err := m.DB.Query(context.Background(), query, userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var answers []*Answer
+
+	for rows.Next() {
+		var answer Answer
+
+		err := rows.Scan(
+			&answer.Id,
+			&answer.Question.Id,
+			&answer.Question.Title,
+			&answer.Author.Id,
+			&answer.Author.ClerkId,
+			&answer.Author.Name,
+			&answer.Author.Picture,
+			&answer.Upvotes,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		answers = append(answers, &answer)
+	}
+
+	return answers, nil
+}
+
 func (m *AnswerModel) Upvote(upvote *AnswerVoteParams) (*AnswerVoteParams, error) {
 	tx, err := m.DB.BeginTx(context.Background(), pgx.TxOptions{})
 	if err != nil {
@@ -291,4 +350,25 @@ func (m *AnswerModel) deleteUpvote(tx pgx.Tx, userId, answerId int64) error {
 	`
 	_, err := tx.Exec(context.Background(), stmt, userId, answerId)
 	return err
+}
+
+func (m *AnswerModel) Delete(id int64) error {
+	query := `
+		DELETE FROM
+			answers
+		WHERE
+			_id = $1
+	`
+
+	result, err := m.DB.Exec(context.Background(), query, id)
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected := result.RowsAffected(); rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
 }

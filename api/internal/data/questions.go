@@ -210,20 +210,16 @@ func (m *QuestionModel) Delete(id int64) error {
 			questions
 		WHERE
 			_id = $1
-		RETURNING
-			_id
 	`
 
-	var _id int64
-	err := m.DB.QueryRow(context.Background(), query, id).Scan(&_id)
+	result, err := m.DB.Exec(context.Background(), query, id)
 
 	if err != nil {
-		switch {
-		case errors.Is(err, pgx.ErrNoRows):
-			return ErrRecordNotFound
-		default:
-			return err
-		}
+		return err
+	}
+
+	if rowsAffected := result.RowsAffected(); rowsAffected == 0 {
+		return ErrRecordNotFound
 	}
 
 	return nil

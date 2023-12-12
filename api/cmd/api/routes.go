@@ -16,11 +16,13 @@ func (app *application) routes() *httprouter.Router {
 
 	router.HandlerFunc(http.MethodPost, "/v1/questions", app.createQuestion)
 	router.HandlerFunc(http.MethodGet, "/v1/questions/:id", app.getQuestionById)
+	router.HandlerFunc(http.MethodDelete, "/v1/questions/:id", app.deleteQuestion)
 	router.HandlerFunc(http.MethodPost, "/v1/questions/:id/upvote", app.upvoteQuestion)
 	router.HandlerFunc(http.MethodPost, "/v1/questions/:id/downvote", app.downvoteQuestion)
 	router.HandlerFunc(http.MethodGet, "/v1/questions/:id/answers", app.getAnswers)
 
 	router.HandlerFunc(http.MethodPost, "/v1/answers", app.createAnswer)
+	router.HandlerFunc(http.MethodDelete, "/v1/answers/:id", app.deleteAnswer)
 	router.HandlerFunc(http.MethodPost, "/v1/answers/:id/upvote", app.upvoteAnswer)
 	router.HandlerFunc(http.MethodPost, "/v1/answers/:id/downvote", app.downvoteAnswer)
 
