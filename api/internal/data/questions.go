@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -377,6 +378,56 @@ func (m *QuestionModel) deleteUpvote(tx pgx.Tx, userId, questionId int64) error 
 	`
 	_, err := tx.Exec(context.Background(), stmt, userId, questionId)
 	return err
+}
+
+func (m *QuestionModel) GetHotQuestions() ([]*Question, error) {
+	oneMonthAgo := time.Now().AddDate(0, -1, 0)
+
+	query := `
+        SELECT
+            q._id,
+            q.title
+        FROM
+            questions q
+        LEFT JOIN (
+            SELECT
+                questionId,
+                COUNT(*) AS upvotes
+            FROM
+                questionsUpvotes
+            GROUP BY
+                questionId
+        ) qu ON q._id = qu.questionId
+        WHERE
+            q.createdAt >= $1
+        ORDER BY
+            COALESCE(qu.upvotes, 0) DESC,
+            q.views DESC
+        LIMIT
+            5;
+    `
+
+	rows, err := m.DB.Query(context.Background(), query, oneMonthAgo)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var hotQuestions []*Question
+
+	for rows.Next() {
+		var q Question
+		if err := rows.Scan(&q.Id, &q.Title); err != nil {
+			return nil, err
+		}
+		hotQuestions = append(hotQuestions, &q)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return hotQuestions, nil
 }
 
 func (m QuestionModel) Insert(question *CreateQuestionParams) error {

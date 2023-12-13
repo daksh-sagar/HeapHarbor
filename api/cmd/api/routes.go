@@ -16,6 +16,7 @@ func (app *application) routes() *httprouter.Router {
 
 	router.HandlerFunc(http.MethodPost, "/v1/questions", app.createQuestion)
 	router.HandlerFunc(http.MethodGet, "/v1/questions/:id", app.getQuestionById)
+	router.HandlerFunc(http.MethodGet, "/v1/hotQuestions", app.getHotQuestions) // * this is to prevent conflicting routes panic from httprouter
 	router.HandlerFunc(http.MethodDelete, "/v1/questions/:id", app.deleteQuestion)
 	router.HandlerFunc(http.MethodPost, "/v1/questions/:id/upvote", app.upvoteQuestion)
 	router.HandlerFunc(http.MethodPost, "/v1/questions/:id/downvote", app.downvoteQuestion)
