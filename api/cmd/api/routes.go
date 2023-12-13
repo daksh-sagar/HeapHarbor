@@ -31,6 +31,8 @@ func (app *application) routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodGet, "/v1/users/:id/questions", app.getUserQuestions)
 	router.HandlerFunc(http.MethodGet, "/v1/users/:id/answers", app.getUserAnswers)
 
+	router.HandlerFunc(http.MethodGet, "/v1/tags/popular", app.getPopularTags)
+
 	return router
 
 }
