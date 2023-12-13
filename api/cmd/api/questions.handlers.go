@@ -183,3 +183,17 @@ func (app *application) deleteQuestion(w http.ResponseWriter, r *http.Request) {
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) getHotQuestions(w http.ResponseWriter, r *http.Request) {
+	questions, err := app.models.Questions.GetHotQuestions()
+
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"questions": questions}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
