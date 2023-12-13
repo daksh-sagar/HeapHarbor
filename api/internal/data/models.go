@@ -14,6 +14,7 @@ type Models struct {
 	Questions QuestionModel
 	Users     UserModel
 	Answers   AnswerModel
+	Tags      TagModel
 }
 
 func NewModels(db *pgxpool.Pool) Models {
@@ -21,5 +22,6 @@ func NewModels(db *pgxpool.Pool) Models {
 		Questions: QuestionModel{DB: db},
 		Users:     UserModel{DB: db},
 		Answers:   AnswerModel{DB: db},
+		Tags:      TagModel{DB: db},
 	}
 }
