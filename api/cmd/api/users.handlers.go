@@ -131,3 +131,15 @@ func (app *application) getUserSavedQuestions(w http.ResponseWriter, r *http.Req
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) getAllUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := app.models.Users.GetAll()
+	if err != nil {
+		app.serverErrorResponse(nil, nil, err)
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"users": users}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

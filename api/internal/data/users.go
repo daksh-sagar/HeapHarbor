@@ -73,3 +73,49 @@ func (m *UserModel) GetByClerkId(id string) (*User, error) {
 
 	return &user, nil
 }
+
+func (m *UserModel) GetAll() ([]*User, error) {
+	query := `
+    SELECT
+      u._id, u.clerkId, u.name, u.username, u.email,
+      COALESCE(u.bio, ''), COALESCE(u.picture, ''), COALESCE(u.location, ''), COALESCE(u.portfolioWebsite, ''),
+      u.reputation
+    FROM
+      users u;
+  `
+
+	rows, err := m.DB.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*User
+
+	for rows.Next() {
+		var user User
+		err := rows.Scan(
+			&user.Id,
+			&user.ClerkId,
+			&user.Name,
+			&user.Username,
+			&user.Email,
+			&user.Bio,
+			&user.Picture,
+			&user.Location,
+			&user.Website,
+			&user.Reputation,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
+}
