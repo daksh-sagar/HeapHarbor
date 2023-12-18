@@ -430,6 +430,103 @@ func (m *QuestionModel) GetHotQuestions() ([]*Question, error) {
 	return hotQuestions, nil
 }
 
+func (m *QuestionModel) GetByTagId(id int64) ([]*Question, error) {
+	query := `
+        SELECT
+            q._id,
+            q.title,
+            u._id AS author_id,
+            u.name AS author_name,
+            u.picture AS author_picture,
+            u.clerkId AS author_clerkId
+        FROM
+            questions q
+        JOIN
+            users u ON q.authorId = u._id
+        JOIN
+            questionsTags qt ON q._id = qt.questionId
+        WHERE
+            qt.tagId = $1;
+    `
+
+	rows, err := m.DB.Query(context.Background(), query, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var questions []*Question
+
+	for rows.Next() {
+		var q Question
+		if err := rows.Scan(&q.Id, &q.Title, &q.Author.Id, &q.Author.Name, &q.Author.Picture, &q.Author.ClerkId); err != nil {
+			return nil, err
+		}
+		questions = append(questions, &q)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return questions, nil
+}
+
+func (m *QuestionModel) GetUserSaved(clerkId string) ([]*Question, error) {
+	stmt := `SELECT _id FROM users WHERE clerkId = $1;`
+	var userId int64
+	err := m.DB.QueryRow(context.Background(), stmt, clerkId).Scan(&userId)
+	if err != nil {
+		return nil, err
+	}
+
+	query := `
+        SELECT
+            q._id,
+            q.title,
+            q.views,
+						u._id,
+						u.clerkId,
+						u.name,
+						u.picture,
+            ARRAY_REMOVE(ARRAY_AGG(qup.userId), null) AS upvotes
+        FROM
+            questions q
+        JOIN
+            usersSavedQuestions sq ON q._id = sq.questionId
+        LEFT JOIN
+            questionsUpvotes qup ON q._id = qup.questionId
+				JOIN
+						users u ON q.authorId = u._id
+        WHERE
+            sq.userId = $1
+        GROUP BY
+            q._id;
+    `
+
+	rows, err := m.DB.Query(context.Background(), query, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var savedQuestions []*Question
+
+	for rows.Next() {
+		var q Question
+		if err := rows.Scan(&q.Id, &q.Title, &q.Views, &q.Author.Id, &q.Author.ClerkId, &q.Author.Name, &q.Author.Picture, &q.Upvotes); err != nil {
+			return nil, err
+		}
+		savedQuestions = append(savedQuestions, &q)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return savedQuestions, nil
+}
+
 func (m QuestionModel) Insert(question *CreateQuestionParams) error {
 
 	// Start a transaction to ensure data consistency

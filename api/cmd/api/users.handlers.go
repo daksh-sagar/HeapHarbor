@@ -93,4 +93,41 @@ func (app *application) getUserQuestions(w http.ResponseWriter, r *http.Request)
 
 }
 
-func (app *application) getUserAnswers(w http.ResponseWriter, r *http.Request) {}
+func (app *application) getUserAnswers(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	answers, err := app.models.Answers.GetByUserId(id)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"answers": answers}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) getUserSavedQuestions(w http.ResponseWriter, r *http.Request) {
+	params := httprouter.ParamsFromContext(r.Context())
+	id := params.ByName("id")
+	if id == "" {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	questions, err := app.models.Questions.GetUserSaved(id)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"questions": questions}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}

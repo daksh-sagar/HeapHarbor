@@ -16,7 +16,7 @@ func (app *application) routes() *httprouter.Router {
 
 	router.HandlerFunc(http.MethodPost, "/v1/questions", app.createQuestion)
 	router.HandlerFunc(http.MethodGet, "/v1/questions/:id", app.getQuestionById)
-	router.HandlerFunc(http.MethodGet, "/v1/hotQuestions", app.getHotQuestions) // * this is to prevent conflicting routes panic from httprouter
+	router.HandlerFunc(http.MethodGet, "/v1/popular/questions", app.getHotQuestions) // * this is to prevent conflicting routes panic from httprouter
 	router.HandlerFunc(http.MethodDelete, "/v1/questions/:id", app.deleteQuestion)
 	router.HandlerFunc(http.MethodPost, "/v1/questions/:id/upvote", app.upvoteQuestion)
 	router.HandlerFunc(http.MethodPost, "/v1/questions/:id/downvote", app.downvoteQuestion)
@@ -31,8 +31,11 @@ func (app *application) routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodGet, "/v1/users/:id", app.getUserByClerkId)
 	router.HandlerFunc(http.MethodGet, "/v1/users/:id/questions", app.getUserQuestions)
 	router.HandlerFunc(http.MethodGet, "/v1/users/:id/answers", app.getUserAnswers)
+	router.HandlerFunc(http.MethodGet, "/v1/users/:id/saved", app.getUserSavedQuestions)
 
-	router.HandlerFunc(http.MethodGet, "/v1/tags/popular", app.getPopularTags)
+	router.HandlerFunc(http.MethodGet, "/v1/tags", app.getAllTags)
+	router.HandlerFunc(http.MethodGet, "/v1/popular/tags", app.getPopularTags) // * this is to prevent conflicting routes panic from httprouter
+	router.HandlerFunc(http.MethodGet, "/v1/tags/:id/questions", app.getQuestionsByTagId)
 
 	return router
 
