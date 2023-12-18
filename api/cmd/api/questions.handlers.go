@@ -197,3 +197,33 @@ func (app *application) getHotQuestions(w http.ResponseWriter, r *http.Request) 
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+func (app *application) toggleSaveQuestion(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	var input struct {
+		UserId int64 `json:"userId"`
+	}
+
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestError(w, r, err)
+	}
+
+	err = app.models.Questions.ToggleSave(id, input.UserId)
+
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+}

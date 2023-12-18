@@ -527,6 +527,22 @@ func (m *QuestionModel) GetUserSaved(clerkId string) ([]*Question, error) {
 	return savedQuestions, nil
 }
 
+func (m *QuestionModel) ToggleSave(questionId, userId int64) error {
+	var exists bool
+	err := m.DB.QueryRow(context.Background(), "SELECT EXISTS (SELECT 1 FROM usersSavedQuestions WHERE userId = $1 AND questionId = $2)", userId, questionId).Scan(&exists)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		_, err = m.DB.Exec(context.Background(), "DELETE FROM usersSavedQuestions WHERE userId = $1 AND questionId = $2", userId, questionId)
+	} else {
+		_, err = m.DB.Exec(context.Background(), "INSERT INTO usersSavedQuestions (userId, questionId) VALUES ($1, $2)", userId, questionId)
+	}
+
+	return err
+}
+
 func (m QuestionModel) Insert(question *CreateQuestionParams) error {
 
 	// Start a transaction to ensure data consistency
