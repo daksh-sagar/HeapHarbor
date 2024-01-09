@@ -1,2 +1,2 @@
 # HeapHarbor
-A public platform building a library of coding questions &amp; answers
+An open-source public platform building a library of coding questions &amp; answers
